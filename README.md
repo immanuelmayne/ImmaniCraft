@@ -12,13 +12,12 @@ A tiny Minecraft-like prototype you can run in CodePen with no build tools.
 
 ## Controls
 
-- `A` / `D` or `←` / `→`: Move left / right
-- `W`, `Space`, or `↑`: Jump
+- `A` / `D`: Move left / right
+- `W` or `Space`: Jump
 - `Shift`: Run
 - Left click: Break block
 - Right click: Place selected block
-- `1`-`5`: Change block type (`5` = 2-block-tall door)
-- Right click on a placed door: Toggle open/closed
+- `1`-`4`: Change block type
 
 ## Can I deploy directly from Git to CodePen?
 
@@ -44,11 +43,3 @@ Short answer: **not as a standard "auto-deploy this repo to this Pen" workflow**
 ## Notes
 
 This is intentionally simple: one biome, no crafting, no inventory, and no chunk streaming.
-
-
-## Gameplay additions
-
-- A simple day/night cycle now runs continuously.
-- Monsters spawn at night and chase the player.
-- Monsters cannot move through doors, so doors work as a basic defense.
-- A starter door spawns near your starting position.
