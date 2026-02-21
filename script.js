@@ -14,11 +14,13 @@ const BLOCKS = [
   { id: 2, name: "Dirt", color: "#7b4e2a" },
   { id: 3, name: "Stone", color: "#6b7280" },
   { id: 4, name: "Wood", color: "#8b5a2b" },
-  { id: 5, name: "Door", color: "#c0843d" },
+  { id: 5, name: "Door", color: "#d9a15b" },
 ];
 
-const DOOR_CLOSED = 5;
-const DOOR_OPEN = 6;
+const DOOR_BOTTOM_CLOSED = 5;
+const DOOR_TOP_CLOSED = 6;
+const DOOR_BOTTOM_OPEN = 7;
+const DOOR_TOP_OPEN = 8;
 
 let selectedBlock = BLOCKS[0].id;
 let frame = 0;
@@ -43,7 +45,19 @@ function generateWorld() {
   }
 }
 
+function placeStarterDoor() {
+  const x = 18;
+  for (let y = 1; y < ROWS - 1; y++) {
+    if (world[y][x] === 0 && world[y - 1][x] === 0 && world[y + 1][x] !== 0) {
+      world[y][x] = DOOR_BOTTOM_CLOSED;
+      world[y - 1][x] = DOOR_TOP_CLOSED;
+      return;
+    }
+  }
+}
+
 generateWorld();
+placeStarterDoor();
 
 const player = {
   x: 15 * TILE,
@@ -63,8 +77,16 @@ function getTile(tx, ty) {
   return world[ty][tx];
 }
 
+function isDoorTile(id) {
+  return [DOOR_BOTTOM_CLOSED, DOOR_TOP_CLOSED, DOOR_BOTTOM_OPEN, DOOR_TOP_OPEN].includes(id);
+}
+
+function isDoorOpen(id) {
+  return id === DOOR_BOTTOM_OPEN || id === DOOR_TOP_OPEN;
+}
+
 function isSolidForPlayer(tileId) {
-  return tileId !== 0 && tileId !== DOOR_OPEN;
+  return tileId !== 0 && !isDoorOpen(tileId);
 }
 
 function isSolidForMonster(tileId) {
@@ -200,6 +222,29 @@ function getCamera() {
   };
 }
 
+function drawDoorTile(px, py, isTop, open) {
+  ctx.fillStyle = open ? "#f1c27d" : "#d9a15b";
+  ctx.fillRect(px, py, TILE, TILE);
+
+  ctx.fillStyle = "rgba(0,0,0,0.12)";
+  ctx.fillRect(px, py + TILE - 3, TILE, 3);
+
+  ctx.fillStyle = "#8b5a2b";
+  ctx.fillRect(px + 2, py + 2, TILE - 4, TILE - 4);
+  ctx.fillStyle = open ? "#f9e2b2" : "#c98f4a";
+  ctx.fillRect(px + 4, py + 4, TILE - 8, TILE - 8);
+
+  if (!isTop) {
+    ctx.fillStyle = "#3f2a14";
+    ctx.fillRect(px + TILE - 7, py + TILE / 2, 3, 3);
+  }
+
+  if (open) {
+    ctx.fillStyle = "rgba(17,24,39,0.25)";
+    ctx.fillRect(px, py, 5, TILE);
+  }
+}
+
 function drawWorld(cam) {
   const night = isNight();
   ctx.fillStyle = night ? "#0f172a" : "#7ec0ee";
@@ -214,17 +259,19 @@ function drawWorld(cam) {
     for (let x = startX; x < endX; x++) {
       const id = world[y]?.[x] || 0;
       if (!id) continue;
-      const block = BLOCKS.find((b) => b.id === id) || { color: "#f2c94c" };
       const px = x * TILE - cam.x;
       const py = y * TILE - cam.y;
-      ctx.fillStyle = id === DOOR_OPEN ? "#d9a86c" : block.color;
+
+      if (isDoorTile(id)) {
+        drawDoorTile(px, py, id === DOOR_TOP_CLOSED || id === DOOR_TOP_OPEN, isDoorOpen(id));
+        continue;
+      }
+
+      const block = BLOCKS.find((b) => b.id === id) || { color: "#f2c94c" };
+      ctx.fillStyle = block.color;
       ctx.fillRect(px, py, TILE, TILE);
       ctx.fillStyle = "rgba(0,0,0,0.1)";
       ctx.fillRect(px, py + TILE - 4, TILE, 4);
-      if (id === DOOR_CLOSED || id === DOOR_OPEN) {
-        ctx.fillStyle = "#3f2a14";
-        ctx.fillRect(px + TILE - 6, py + TILE / 2, 3, 3);
-      }
     }
   }
 }
@@ -324,6 +371,41 @@ function setToolbar() {
   });
 }
 
+function setDoorState(baseX, baseY, open) {
+  if (baseY <= 0 || baseY >= ROWS) return;
+  world[baseY][baseX] = open ? DOOR_BOTTOM_OPEN : DOOR_BOTTOM_CLOSED;
+  world[baseY - 1][baseX] = open ? DOOR_TOP_OPEN : DOOR_TOP_CLOSED;
+}
+
+function findDoorBottom(x, y) {
+  const id = getTile(x, y);
+  if (id === DOOR_BOTTOM_CLOSED || id === DOOR_BOTTOM_OPEN) return { x, y };
+  if (id === DOOR_TOP_CLOSED || id === DOOR_TOP_OPEN) return { x, y: y + 1 };
+  return null;
+}
+
+function toggleDoorAt(x, y) {
+  const doorBottom = findDoorBottom(x, y);
+  if (!doorBottom) return false;
+  const current = getTile(doorBottom.x, doorBottom.y);
+  setDoorState(doorBottom.x, doorBottom.y, current === DOOR_BOTTOM_CLOSED);
+  return true;
+}
+
+function clearDoorAt(x, y) {
+  const doorBottom = findDoorBottom(x, y);
+  if (!doorBottom) return false;
+  world[doorBottom.y][doorBottom.x] = 0;
+  world[doorBottom.y - 1][doorBottom.x] = 0;
+  return true;
+}
+
+function canPlaceDoorAt(x, y) {
+  const bottomY = y;
+  const topY = y - 1;
+  return topY >= 0 && getTile(x, bottomY) === 0 && getTile(x, topY) === 0 && getTile(x, bottomY + 1) !== 0;
+}
+
 setToolbar();
 
 window.addEventListener("keydown", (e) => {
@@ -366,15 +448,20 @@ canvas.addEventListener("mousedown", (e) => {
     x >= playerTileLeft && x <= playerTileRight && y >= playerTileTop && y <= playerTileBottom;
 
   if (e.button === 0) {
-    world[y][x] = 0;
+    if (!clearDoorAt(x, y)) world[y][x] = 0;
   } else if (e.button === 2 && !overlapsPlayer) {
-    if (world[y][x] === DOOR_CLOSED) {
-      world[y][x] = DOOR_OPEN;
-    } else if (world[y][x] === DOOR_OPEN) {
-      world[y][x] = DOOR_CLOSED;
-    } else {
-      world[y][x] = selectedBlock;
+    if (toggleDoorAt(x, y)) {
+      return;
     }
+
+    if (selectedBlock === DOOR_BOTTOM_CLOSED) {
+      if (canPlaceDoorAt(x, y)) {
+        setDoorState(x, y, false);
+      }
+      return;
+    }
+
+    world[y][x] = selectedBlock;
   }
 });
 
