@@ -71,6 +71,10 @@ function collides(px, py, pw, ph) {
 function updatePlayer() {
   const speed = keys.has("ShiftLeft") ? 4.2 : 2.8;
   player.vx = 0;
+  if (keys.has("KeyA") || keys.has("ArrowLeft")) player.vx = -speed;
+  if (keys.has("KeyD") || keys.has("ArrowRight")) player.vx = speed;
+
+  if ((keys.has("KeyW") || keys.has("Space") || keys.has("ArrowUp")) && player.onGround) {
   if (keys.has("KeyA")) player.vx = -speed;
   if (keys.has("KeyD")) player.vx = speed;
 
@@ -186,6 +190,10 @@ function setToolbar() {
 setToolbar();
 
 window.addEventListener("keydown", (e) => {
+  if (["ArrowLeft", "ArrowRight", "ArrowUp", "Space"].includes(e.code)) {
+    e.preventDefault();
+  }
+
   if (["Digit1", "Digit2", "Digit3", "Digit4"].includes(e.code)) {
     const index = Number(e.code.slice(-1)) - 1;
     selectedBlock = BLOCKS[index].id;
