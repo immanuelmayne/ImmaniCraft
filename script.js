@@ -71,10 +71,10 @@ function collides(px, py, pw, ph) {
 function updatePlayer() {
   const speed = keys.has("ShiftLeft") ? 4.2 : 2.8;
   player.vx = 0;
-  if (keys.has("KeyA")) player.vx = -speed;
-  if (keys.has("KeyD")) player.vx = speed;
+  if (keys.has("KeyA") || keys.has("ArrowLeft")) player.vx = -speed;
+  if (keys.has("KeyD") || keys.has("ArrowRight")) player.vx = speed;
 
-  if ((keys.has("KeyW") || keys.has("Space")) && player.onGround) {
+  if ((keys.has("KeyW") || keys.has("Space") || keys.has("ArrowUp")) && player.onGround) {
     player.vy = JUMP_VELOCITY;
     player.onGround = false;
   }
@@ -145,8 +145,31 @@ function drawWorld(cam) {
 let cursorTile = null;
 
 function drawPlayer(cam) {
-  ctx.fillStyle = "#ef4444";
-  ctx.fillRect(player.x - cam.x, player.y - cam.y, player.width, player.height);
+  const px = player.x - cam.x;
+  const py = player.y - cam.y;
+
+  // Legs
+  ctx.fillStyle = "#2563eb";
+  ctx.fillRect(px + 3, py + player.height - 10, 4, 10);
+  ctx.fillRect(px + 9, py + player.height - 10, 4, 10);
+
+  // Torso
+  ctx.fillStyle = "#dc2626";
+  ctx.fillRect(px + 2, py + 8, 12, 12);
+
+  // Arms
+  ctx.fillStyle = "#fca5a5";
+  ctx.fillRect(px, py + 9, 2, 8);
+  ctx.fillRect(px + 14, py + 9, 2, 8);
+
+  // Head
+  ctx.fillStyle = "#f2c09a";
+  ctx.fillRect(px + 3, py, 10, 8);
+
+  // Eyes
+  ctx.fillStyle = "#111827";
+  ctx.fillRect(px + 5, py + 3, 1, 1);
+  ctx.fillRect(px + 9, py + 3, 1, 1);
 }
 
 function drawCursor(cam) {
@@ -186,6 +209,10 @@ function setToolbar() {
 setToolbar();
 
 window.addEventListener("keydown", (e) => {
+  if (["ArrowLeft", "ArrowRight", "ArrowUp", "Space"].includes(e.code)) {
+    e.preventDefault();
+  }
+
   if (["Digit1", "Digit2", "Digit3", "Digit4"].includes(e.code)) {
     const index = Number(e.code.slice(-1)) - 1;
     selectedBlock = BLOCKS[index].id;
