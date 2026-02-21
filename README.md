@@ -14,6 +14,8 @@ A tiny Minecraft-like prototype you can run in CodePen with no build tools.
 
 - `A` / `D` or `←` / `→`: Move left / right
 - `W`, `Space`, or `↑`: Jump
+- `A` / `D`: Move left / right
+- `W` or `Space`: Jump
 - `Shift`: Run
 - Left click: Break block
 - Right click: Place selected block

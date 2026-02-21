@@ -75,6 +75,10 @@ function updatePlayer() {
   if (keys.has("KeyD") || keys.has("ArrowRight")) player.vx = speed;
 
   if ((keys.has("KeyW") || keys.has("Space") || keys.has("ArrowUp")) && player.onGround) {
+  if (keys.has("KeyA")) player.vx = -speed;
+  if (keys.has("KeyD")) player.vx = speed;
+
+  if ((keys.has("KeyW") || keys.has("Space")) && player.onGround) {
     player.vy = JUMP_VELOCITY;
     player.onGround = false;
   }
