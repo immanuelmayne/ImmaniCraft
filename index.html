@@ -3,19 +3,34 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Mini Block Sandbox</title>
+    <title>ImmaniCraft Plans</title>
     <link rel="stylesheet" href="style.css" />
   </head>
   <body>
-    <main class="app">
-      <h1>Mini Block Sandbox</h1>
-      <p class="help">
-        WASD or Arrow keys to move, Space/Up Arrow to jump, Shift to run, Left click to break,
-        Right click to place, 1-4 to choose block.
-      </p>
-      <canvas id="game" width="960" height="540" aria-label="Mini block sandbox game"></canvas>
-      <div class="toolbar" id="toolbar"></div>
+    <main class="page-shell">
+      <section class="hero">
+        <p class="eyebrow">Build Bigger Worlds</p>
+        <h1>Choose the ImmaniCraft plan that fits your next adventure.</h1>
+        <p class="hero-copy">
+          From starter builders to full-scale creators, ImmaniCraft now has a plan for every kind
+          of player.
+        </p>
+      </section>
+
+      <section class="plans" aria-label="ImmaniCraft pricing plans" id="plans"></section>
+
+      <section class="spotlight" id="spotlight" aria-live="polite">
+        <div>
+          <p class="spotlight-label">Selected Plan</p>
+          <h2 id="spotlight-name">ImmaniCraft-2.0</h2>
+          <p id="spotlight-price" class="spotlight-price">$10</p>
+        </div>
+        <p id="spotlight-description" class="spotlight-copy"></p>
+        <ul id="spotlight-features" class="feature-list"></ul>
+        <button type="button" class="cta-button" id="cta-button">Choose This Plan</button>
+      </section>
     </main>
+
     <script src="script.js"></script>
   </body>
 </html>
