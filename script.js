@@ -678,6 +678,15 @@ function setOnlineStatus(message) {
   }
 }
 
+function setDefaultConnectionStatus() {
+  if (networkMode === "online") return;
+  if (window.location.protocol === "file:") {
+    setOnlineStatus("Offline mode is ready. You can play this game with no Wi-Fi. Online rooms are optional and need the local server.");
+    return;
+  }
+  setOnlineStatus("Offline mode is ready. Solo play and local split-screen do not need Wi-Fi. Online rooms are optional.");
+}
+
 function getPlayerName() {
   return (playerNameInput?.value || "Player").trim() || "Player";
 }
@@ -891,7 +900,7 @@ if (hostRoomButton) {
     try {
       await hostOnlineRoom();
     } catch (error) {
-      setOnlineStatus(`Could not host room: ${error.message}`);
+      setOnlineStatus(`Could not host room: ${error.message}. Offline play still works with no Wi-Fi.`);
     }
   });
 }
@@ -901,14 +910,12 @@ if (joinRoomButton) {
     try {
       await joinOnlineRoom();
     } catch (error) {
-      setOnlineStatus(`Could not join room: ${error.message}`);
+      setOnlineStatus(`Could not join room: ${error.message}. Offline play still works with no Wi-Fi.`);
     }
   });
 }
 
-if (window.location.protocol === "file:") {
-  setOnlineStatus("You are on file:// right now. Multiplayer works from http://localhost:3000 after you run npm start.");
-}
+setDefaultConnectionStatus();
 
 const initialUiState = readUiState();
 if (initialUiState.gameMode === "creative" || initialUiState.gameMode === "survival") {

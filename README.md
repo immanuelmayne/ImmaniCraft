@@ -1,45 +1,40 @@
-# Mini Block Sandbox (CodePen-friendly)
+# ImmaniCraft
 
-A tiny Minecraft-like prototype you can run in CodePen with no build tools.
+ImmaniCraft is an offline-first browser game.
 
-## Use in CodePen
+You can open [index.html](C:/Users/User/Git%20Projects/Immanuel's/ImmaniCraft/index.html) directly and play with no Wi-Fi for:
+- solo play
+- local split-screen
+- local audio and UI
 
-1. Create a new Pen.
-2. Copy `index.html` into the HTML panel.
-3. Copy `style.css` into the CSS panel.
-4. Copy `script.js` into the JS panel.
-5. Run and play.
+## Play Offline
+
+1. Open `index.html`.
+2. Go to the `Game` tab.
+3. Press `Start`.
+
+No internet connection is needed for normal gameplay.
 
 ## Controls
 
-- `A` / `D`: Move left / right
-- `W` or `Space`: Jump
-- `Shift`: Run
-- Left click: Break block
-- Right click: Place selected block
-- `1`-`4`: Change block type
+- `Player 1`: `Arrow Left`, `Arrow Right`, `Arrow Up` or `Space`, mouse
+- `Player 2`: `A`, `D`, `W`, `F`, `G`
+- `Player 3`: `J`, `L`, `I`, `U`, `O`
+- `Player 4`: numpad `4`, `6`, `8`, `7`, `9`
 
-## Can I deploy directly from Git to CodePen?
+## Optional Shared Rooms
 
-Short answer: **not as a standard "auto-deploy this repo to this Pen" workflow**.
+Online room sharing is optional.
 
-### What works instead
+If you want shared-room play later:
 
-1. **Manual sync (most common)**
-   - Keep source in GitHub.
-   - Paste/update HTML/CSS/JS in CodePen when you want to demo.
+1. Run `npm start`
+2. Open `http://localhost:3000`
+3. Use the `Online Multiplayer` panel in `Settings`
 
-2. **Reference Git-hosted assets from CodePen**
-   - Put your JS/CSS in GitHub.
-   - In CodePen, add external URLs that point to your files via a CDN such as jsDelivr, for example:
-     - `https://cdn.jsdelivr.net/gh/<user>/<repo>@main/style.css`
-     - `https://cdn.jsdelivr.net/gh/<user>/<repo>@main/script.js`
-   - Then CodePen acts mostly as a preview shell while Git remains your source of truth.
+## Files
 
-3. **Use a real deploy target for continuous delivery**
-   - If you want push-to-deploy, use GitHub Pages, Netlify, or Vercel.
-   - Keep CodePen for experiments/prototypes rather than production deployment.
-
-## Notes
-
-This is intentionally simple: one biome, no crafting, no inventory, and no chunk streaming.
+- [index.html](C:/Users/User/Git%20Projects/Immanuel's/ImmaniCraft/index.html)
+- [style.css](C:/Users/User/Git%20Projects/Immanuel's/ImmaniCraft/style.css)
+- [script.js](C:/Users/User/Git%20Projects/Immanuel's/ImmaniCraft/script.js)
+- [server.js](C:/Users/User/Git%20Projects/Immanuel's/ImmaniCraft/server.js)
