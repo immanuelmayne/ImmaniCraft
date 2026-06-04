@@ -26,6 +26,7 @@ const fullscreenToggle = document.getElementById("fullscreen-toggle");
 const muteToggle = document.getElementById("mute-toggle");
 const tabButtons = Array.from(document.querySelectorAll(".tab-button"));
 const tabPanels = Array.from(document.querySelectorAll(".tab-panel"));
+const gameTabPanel = document.getElementById("game-tab-panel");
 const serverUrlInput = document.getElementById("server-url");
 const playerNameInput = document.getElementById("player-name");
 const roomCodeInput = document.getElementById("room-code");
@@ -544,13 +545,23 @@ if (fullscreenToggle) {
       if (document.fullscreenElement) {
         await document.exitFullscreen();
       } else {
-        await canvas.requestFullscreen();
+        await gameTabPanel.requestFullscreen();
       }
     } catch {
       updateStatus("Fullscreen is not available right now.");
     }
   });
 }
+
+function renderFullscreenButton() {
+  if (!fullscreenToggle) return;
+  fullscreenToggle.textContent = document.fullscreenElement ? "Exit Full Screen" : "Full Screen";
+}
+
+document.addEventListener("fullscreenchange", () => {
+  document.body.classList.toggle("fullscreen-game", Boolean(document.fullscreenElement));
+  renderFullscreenButton();
+});
 
 function renderMuteButton() {
   if (!muteToggle) return;
@@ -3194,6 +3205,7 @@ showTab(initialTab);
 renderMode();
 renderPlayerCount();
 renderMuteButton();
+renderFullscreenButton();
 renderGameRunState();
 renderHearts();
 refreshWorldStatus();

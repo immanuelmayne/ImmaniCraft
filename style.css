@@ -173,6 +173,30 @@ h1 {
   display: block;
 }
 
+#game-tab-panel:fullscreen {
+  padding: 1rem;
+  background:
+    radial-gradient(circle at top, rgba(104, 196, 102, 0.2), transparent 34%),
+    linear-gradient(180deg, #122118 0%, #0d1410 48%, #09100c 100%);
+}
+
+body.fullscreen-game .tab-bar,
+body.fullscreen-game .hero,
+body.fullscreen-game .demo-copy,
+body.fullscreen-game .hud-copy,
+body.fullscreen-game .card-copy,
+body.fullscreen-game .status-text,
+body.fullscreen-game .mini-label,
+body.fullscreen-game .mode-copy,
+body.fullscreen-game .heart-label {
+  display: none;
+}
+
+body.fullscreen-game #game-tab-panel .game-layout {
+  grid-template-columns: minmax(0, 3fr) minmax(240px, 1fr);
+  align-items: start;
+}
+
 .demo-copy {
   max-width: 680px;
   margin-bottom: 1rem;
