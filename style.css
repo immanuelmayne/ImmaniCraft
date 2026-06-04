@@ -39,7 +39,7 @@ body::before {
 
 .page-shell {
   position: relative;
-  max-width: 1180px;
+  max-width: 1360px;
   margin: 0 auto;
   padding: 4rem 1.25rem 5rem;
 }
@@ -80,32 +80,6 @@ h1 {
   line-height: 1.65;
 }
 
-.hero-actions {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 0.9rem 1rem;
-  margin-top: 1.25rem;
-}
-
-.play-link {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 150px;
-  padding: 0.95rem 1.15rem;
-  border-radius: 14px;
-  background: linear-gradient(135deg, var(--accent) 0%, var(--accent-deep) 100%);
-  color: #102013;
-  text-decoration: none;
-  font-weight: 700;
-}
-
-.hero-note {
-  margin-bottom: 0;
-  color: var(--muted);
-}
-
 .game-panel,
 .info-card {
   backdrop-filter: blur(12px);
@@ -142,8 +116,8 @@ h1 {
 }
 
 .tab-bar {
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 0.75rem;
   margin-bottom: 1rem;
 }
@@ -151,12 +125,14 @@ h1 {
 .tab-button {
   border: 1px solid rgba(255, 255, 255, 0.12);
   border-radius: 999px;
+  width: 100%;
   padding: 0.7rem 1.05rem;
   background: rgba(255, 255, 255, 0.06);
   color: var(--text);
   font: inherit;
   font-weight: 700;
   cursor: pointer;
+  text-align: center;
 }
 
 .tab-button.active {
@@ -193,8 +169,12 @@ body.fullscreen-game .heart-label {
 }
 
 body.fullscreen-game #game-tab-panel .game-layout {
-  grid-template-columns: minmax(0, 3fr) minmax(240px, 1fr);
+  grid-template-columns: minmax(0, 4fr) minmax(200px, 0.8fr);
   align-items: start;
+}
+
+body.fullscreen-game #game-tab-panel .game-layout.sidebar-collapsed {
+  grid-template-columns: minmax(0, 1fr) auto;
 }
 
 .demo-copy {
@@ -204,16 +184,27 @@ body.fullscreen-game #game-tab-panel .game-layout {
 
 .game-layout {
   display: grid;
-  grid-template-columns: minmax(0, 2fr) minmax(280px, 1fr);
+  grid-template-columns: minmax(0, 3.2fr) minmax(220px, 0.8fr);
   gap: 1rem;
 }
 
 .game-layout.sidebar-collapsed {
-  grid-template-columns: minmax(0, 1fr);
+  grid-template-columns: minmax(0, 1fr) auto;
 }
 
 .game-layout.sidebar-collapsed .side-panel {
   display: none;
+}
+
+.sidebar-shell {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  align-items: stretch;
+}
+
+.game-layout.sidebar-collapsed .sidebar-shell {
+  align-items: flex-start;
 }
 
 .info-layout {
@@ -221,7 +212,7 @@ body.fullscreen-game #game-tab-panel .game-layout {
 }
 
 .game-panel {
-  padding: 1rem;
+  padding: 0.85rem;
   border-radius: 28px;
   background: rgba(14, 24, 19, 0.88);
 }
@@ -335,9 +326,31 @@ body.fullscreen-game #game-tab-panel .game-layout {
 }
 
 .icon-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   min-width: 2.75rem;
   padding: 0.65rem;
   text-align: center;
+}
+
+.sidebar-icon-button {
+  align-self: flex-end;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 2.75rem;
+  padding: 0.65rem;
+  text-align: center;
+  font-size: 1.1rem;
+  line-height: 1;
+}
+
+.icon-button i,
+.sidebar-icon-button i {
+  font-size: 1rem;
+  line-height: 1;
+  pointer-events: none;
 }
 
 .player-button {

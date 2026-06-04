@@ -4,6 +4,10 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>ImmaniCraft Playground</title>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+    />
     <link rel="stylesheet" href="style.css" />
   </head>
   <body>
@@ -15,10 +19,6 @@
           Mine, build, swim, craft, and explore with a moveable character, weather, water, lava,
           trees, and Survival or Creative mode.
         </p>
-        <div class="hero-actions">
-          <a class="play-link" href="#playground">Play Now</a>
-          <p class="hero-note">The game starts in the ImmaniCraft Playground below.</p>
-        </div>
       </section>
 
       <section class="demo-shell" id="playground">
@@ -83,9 +83,24 @@
             <section class="game-panel">
               <div class="game-run-bar" aria-label="Game playback controls">
                 <button type="button" class="mode-button" id="start-game">Start</button>
-                <button type="button" class="mode-button icon-button" id="mute-toggle" aria-label="Mute audio" title="Mute audio">M</button>
-                <button type="button" class="mode-button icon-button" id="fullscreen-toggle" aria-label="Toggle full screen" title="Toggle full screen">[]</button>
-                <button type="button" class="mode-button" id="sidebar-toggle">Hide Sidebar</button>
+                <button
+                  type="button"
+                  class="mode-button icon-button"
+                  id="mute-toggle"
+                  aria-label="Mute audio"
+                  title="Mute audio"
+                >
+                  <i class="fa-solid fa-volume-high" aria-hidden="true"></i>
+                </button>
+                <button
+                  type="button"
+                  class="mode-button icon-button"
+                  id="fullscreen-toggle"
+                  aria-label="Toggle full screen"
+                  title="Toggle full screen"
+                >
+                  <i class="fa-solid fa-expand" aria-hidden="true"></i>
+                </button>
                 <p id="game-run-status" class="mode-copy">Paused. Press Start when you are ready to play.</p>
               </div>
               <canvas
@@ -97,15 +112,17 @@
               ></canvas>
             </section>
 
-            <aside class="side-panel">
-              <details class="info-card dropdown-card" open>
-                <summary>Health</summary>
-                <div class="dropdown-content">
-                  <div class="hearts side-hearts" id="hearts" aria-label="Health"></div>
-                  <p class="hud-copy">Swim in water. In Survival, you heal half a heart every 30 seconds.</p>
-                </div>
-              </details>
-
+            <div class="sidebar-shell">
+              <button
+                type="button"
+                class="player-button sidebar-icon-button"
+                id="sidebar-toggle"
+                aria-label="Hide sidebar"
+                title="Hide sidebar"
+              >
+                <i class="fa-solid fa-chevron-right" aria-hidden="true"></i>
+              </button>
+              <aside class="side-panel">
               <details class="info-card dropdown-card">
                 <summary>Block Bar</summary>
                 <div class="dropdown-content">
@@ -180,7 +197,8 @@
                   </div>
                 </div>
               </details>
-            </aside>
+              </aside>
+            </div>
           </div>
         </section>
 
