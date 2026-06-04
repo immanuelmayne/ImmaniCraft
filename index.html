@@ -39,7 +39,7 @@
           </div>
 
           <div class="game-layout info-layout">
-            <section class="game-panel">
+            <section class="game-panel home-panel">
               <details class="start-card dropdown-card" open>
                 <summary>How To Start</summary>
                 <div class="dropdown-content">
@@ -81,6 +81,11 @@
         <section class="tab-panel" data-panel="game">
           <div class="game-layout">
             <section class="game-panel">
+              <div class="game-run-bar" aria-label="Game playback controls">
+                <button type="button" class="mode-button" id="start-game">Start</button>
+                <button type="button" class="mode-button" id="pause-game">Pause</button>
+                <p id="game-run-status" class="mode-copy">Paused. Press Start when you are ready to play.</p>
+              </div>
               <canvas
                 id="game"
                 width="960"

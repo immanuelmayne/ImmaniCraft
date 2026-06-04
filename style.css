@@ -194,6 +194,19 @@ h1 {
   background: rgba(14, 24, 19, 0.88);
 }
 
+.home-panel {
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  backdrop-filter: none;
+  box-shadow: none;
+}
+
+.home-panel .start-card {
+  margin-bottom: 0;
+}
+
 .hud-row {
   display: flex;
   flex-wrap: wrap;
@@ -249,6 +262,14 @@ h1 {
 }
 
 .mode-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 0.9rem;
+}
+
+.game-run-bar {
   display: flex;
   flex-wrap: wrap;
   align-items: center;

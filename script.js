@@ -16,6 +16,9 @@ const weatherStatus = document.getElementById("weather-status");
 const heartsRoot = document.getElementById("hearts");
 const survivalButton = document.getElementById("mode-survival");
 const creativeButton = document.getElementById("mode-creative");
+const startGameButton = document.getElementById("start-game");
+const pauseGameButton = document.getElementById("pause-game");
+const gameRunStatus = document.getElementById("game-run-status");
 const modeCopy = document.getElementById("mode-copy");
 const playerCopy = document.getElementById("player-copy");
 const playerButtons = Array.from(document.querySelectorAll(".player-button"));
@@ -29,10 +32,48 @@ const roomCodeInput = document.getElementById("room-code");
 const hostRoomButton = document.getElementById("host-room");
 const joinRoomButton = document.getElementById("join-room");
 const onlineStatus = document.getElementById("online-status");
+const STORAGE_KEY = "immanicraft-ui-state";
+
+function readUiState() {
+  try {
+    const raw = window.localStorage.getItem(STORAGE_KEY);
+    return raw ? JSON.parse(raw) : {};
+  } catch {
+    return {};
+  }
+}
+
+function writeUiState(patch) {
+  try {
+    const nextState = {
+      ...readUiState(),
+      ...patch,
+    };
+    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(nextState));
+  } catch {
+    // Ignore storage failures so the game still works normally.
+  }
+}
 
 function focusGame() {
   canvas.scrollIntoView({ behavior: "smooth", block: "center" });
   canvas.focus();
+}
+
+function renderGameRunState() {
+  if (startGameButton) {
+    startGameButton.textContent = gameStarted && gamePaused ? "Resume" : "Start";
+  }
+  if (pauseGameButton) {
+    pauseGameButton.disabled = !gameStarted || gamePaused;
+  }
+  if (gameRunStatus) {
+    gameRunStatus.textContent = gamePaused
+      ? gameStarted
+        ? "Paused. Press Resume to continue playing."
+        : "Paused. Press Start when you are ready to play."
+      : "Running. The game will auto-pause if you leave the tab.";
+  }
 }
 
 function showTab(tabName) {
@@ -42,6 +83,7 @@ function showTab(tabName) {
   tabPanels.forEach((panel) => {
     panel.classList.toggle("active", panel.dataset.panel === tabName);
   });
+  writeUiState({ activeTab: tabName });
 }
 
 function ensureAudio() {
@@ -442,6 +484,9 @@ let musicScheduledUntil = 0;
 let musicTimer = null;
 let thunderFlash = 0;
 let isMuted = false;
+let gameStarted = false;
+let gamePaused = true;
+let animationFrameId = null;
 let networkMode = "offline";
 let networkRoomId = "";
 let networkPlayerId = "";
@@ -462,6 +507,7 @@ function renderMode() {
   modeCopy.textContent = creative
     ? "Creative gives you unlimited blocks, double-space flight, and local 1-4 player split-screen."
     : "Survival uses real inventory counts and local 1-4 player split-screen.";
+  writeUiState({ gameMode });
   renderHearts();
 }
 
@@ -480,6 +526,7 @@ function renderPlayerCount() {
         ? "1 player uses a full screen."
         : `${activePlayerCount} players each get their own screen.`;
   }
+  writeUiState({ activePlayerCount });
 }
 
 playerButtons.forEach((button) => {
@@ -509,6 +556,7 @@ function renderMuteButton() {
   if (!muteToggle) return;
   muteToggle.textContent = isMuted ? "Unmute" : "Mute";
   muteToggle.classList.toggle("active", isMuted);
+  writeUiState({ isMuted });
 }
 
 if (muteToggle) {
@@ -530,6 +578,59 @@ if (muteToggle) {
     }
   });
 }
+
+function startGame() {
+  gameStarted = true;
+  gamePaused = false;
+  renderGameRunState();
+  ensureAudio();
+  if (!animationFrameId) {
+    animationFrameId = requestAnimationFrame(loop);
+  }
+}
+
+function pauseGame(reason = "") {
+  if (!gameStarted) {
+    gamePaused = true;
+    renderGameRunState();
+    renderFrame();
+    return;
+  }
+
+  gamePaused = true;
+  if (animationFrameId) {
+    cancelAnimationFrame(animationFrameId);
+    animationFrameId = null;
+  }
+  renderGameRunState();
+  renderFrame();
+  if (reason && gameRunStatus) {
+    gameRunStatus.textContent = reason;
+  }
+}
+
+if (startGameButton) {
+  startGameButton.addEventListener("click", () => {
+    startGame();
+    focusGame();
+  });
+}
+
+if (pauseGameButton) {
+  pauseGameButton.addEventListener("click", () => {
+    pauseGame("Paused. Press Resume to continue playing.");
+  });
+}
+
+document.addEventListener("visibilitychange", () => {
+  if (document.hidden) {
+    pauseGame("Paused because you left the tab.");
+  }
+});
+
+window.addEventListener("blur", () => {
+  pauseGame("Paused because the window is no longer active.");
+});
 
 function getServerUrl() {
   const fallback = window.location.origin && window.location.origin !== "null" ? window.location.origin : "http://localhost:3000";
@@ -759,6 +860,18 @@ if (joinRoomButton) {
 if (window.location.protocol === "file:") {
   setOnlineStatus("You are on file:// right now. Multiplayer works from http://localhost:3000 after you run npm start.");
 }
+
+const initialUiState = readUiState();
+if (initialUiState.gameMode === "creative" || initialUiState.gameMode === "survival") {
+  gameMode = initialUiState.gameMode;
+}
+if (Number.isInteger(initialUiState.activePlayerCount) && initialUiState.activePlayerCount >= 1 && initialUiState.activePlayerCount <= 4) {
+  activePlayerCount = initialUiState.activePlayerCount;
+}
+if (typeof initialUiState.isMuted === "boolean") {
+  isMuted = initialUiState.isMuted;
+}
+const initialTab = typeof initialUiState.activeTab === "string" ? initialUiState.activeTab : "home";
 
 survivalButton.addEventListener("click", () => {
   gameMode = "survival";
@@ -3003,7 +3116,23 @@ function renderViewport(activePlayer, viewport, index) {
   currentViewport = null;
 }
 
+function renderFrame() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  const activePlayers = getActivePlayers();
+  const viewports = getViewports();
+  activePlayers.forEach((activePlayer, index) => {
+    renderViewport(activePlayer, viewports[index], index);
+  });
+}
+
 function loop() {
+  if (gamePaused) {
+    animationFrameId = null;
+    renderGameRunState();
+    renderFrame();
+    return;
+  }
+
   worldTick += 1;
   updatePlayer();
   updateMonsters();
@@ -3015,15 +3144,8 @@ function loop() {
   updateRain();
   flowLiquids();
   refreshWorldStatus();
-
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-  const activePlayers = getActivePlayers();
-  const viewports = getViewports();
-  activePlayers.forEach((activePlayer, index) => {
-    renderViewport(activePlayer, viewports[index], index);
-  });
-
-  requestAnimationFrame(loop);
+  renderFrame();
+  animationFrameId = requestAnimationFrame(loop);
 }
 
 function renderHearts() {
@@ -3068,9 +3190,11 @@ function renderHearts() {
 renderToolbar();
 renderInventory();
 renderCrafting();
+showTab(initialTab);
 renderMode();
 renderPlayerCount();
 renderMuteButton();
+renderGameRunState();
 renderHearts();
 refreshWorldStatus();
-loop();
+renderFrame();
