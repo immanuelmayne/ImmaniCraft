@@ -3194,8 +3194,11 @@ function renderHearts() {
 
   if (gameMode === "creative") {
     heartsRoot.innerHTML = `
-      <span class="heart">&infin;</span>
-      <span class="heart-label">Creative mode</span>
+      <div class="heart-row">
+        <span class="heart-label">Mode</span>
+        <span class="heart">&infin;</span>
+        <span class="heart-label">Creative mode</span>
+      </div>
     `;
     return;
   }
@@ -3206,7 +3209,7 @@ function renderHearts() {
   let markup = "";
 
   getActivePlayers().forEach((activePlayer, index) => {
-    markup += `<span class="heart-label">P${index + 1}</span>`;
+    markup += `<div class="heart-row"><span class="heart-label">P${index + 1}</span>`;
     for (let i = 0; i < activePlayer.maxHealth; i++) {
       const heartLevel = activePlayer.health - i;
       let heart = emptyHeart;
@@ -3222,7 +3225,7 @@ function renderHearts() {
 
       markup += `<span class="heart${stateClass}" aria-hidden="true">${heart}</span>`;
     }
-    markup += `<span class="heart-label">${activePlayer.health}/${activePlayer.maxHealth}</span>`;
+    markup += `<span class="heart-label">${activePlayer.health}/${activePlayer.maxHealth}</span></div>`;
   });
 
   heartsRoot.innerHTML = markup;

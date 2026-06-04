@@ -255,14 +255,20 @@ body.fullscreen-game #game-tab-panel .game-layout {
 }
 
 .hearts {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.35rem;
+  display: grid;
+  gap: 0.5rem;
   min-height: 2rem;
 }
 
 .side-hearts {
+  align-items: start;
+}
+
+.heart-row {
+  display: flex;
+  flex-wrap: wrap;
   align-items: center;
+  gap: 0.35rem;
 }
 
 .heart {
