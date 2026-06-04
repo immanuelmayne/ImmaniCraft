@@ -1,5 +1,3 @@
-const playLink = document.querySelector(".play-link");
-
 const canvas = document.getElementById("game");
 const ctx = canvas.getContext("2d");
 const toolbar = document.getElementById("toolbar");
@@ -13,14 +11,13 @@ const waterStatus = document.getElementById("water-status");
 const drowningStatus = document.getElementById("drowning-status");
 const timeStatus = document.getElementById("time-status");
 const weatherStatus = document.getElementById("weather-status");
-const heartsRoot = document.getElementById("hearts");
 const survivalButton = document.getElementById("mode-survival");
 const creativeButton = document.getElementById("mode-creative");
 const startGameButton = document.getElementById("start-game");
 const gameRunStatus = document.getElementById("game-run-status");
 const modeCopy = document.getElementById("mode-copy");
 const playerCopy = document.getElementById("player-copy");
-const playerButtons = Array.from(document.querySelectorAll(".player-button"));
+const playerButtons = Array.from(document.querySelectorAll("[data-player-count]"));
 const fullscreenToggle = document.getElementById("fullscreen-toggle");
 const muteToggle = document.getElementById("mute-toggle");
 const sidebarToggle = document.getElementById("sidebar-toggle");
@@ -64,10 +61,17 @@ function focusGame() {
   canvas.focus();
 }
 
+function setIconButtonIcon(button, iconClass) {
+  if (!button) return;
+  button.innerHTML = `<i class="${iconClass}" aria-hidden="true"></i>`;
+}
+
 function renderGameRunState() {
   if (startGameButton) {
-    startGameButton.textContent = gamePaused ? (gameStarted ? "Resume" : "Start") : "Pause";
+    startGameButton.textContent = gamePaused ? (gameStarted ? "▶ Resume" : "▶ Start") : "❚❚ Pause";
     startGameButton.classList.toggle("active", !gamePaused);
+    startGameButton.setAttribute("aria-pressed", String(!gamePaused));
+    startGameButton.title = gamePaused ? (gameStarted ? "Resume the game" : "Start the game") : "Pause the game";
   }
   if (gameRunStatus) {
     gameRunStatus.textContent = gamePaused
@@ -83,8 +87,10 @@ function renderSidebarState() {
     gameLayout.classList.toggle("sidebar-collapsed", sidebarCollapsed);
   }
   if (sidebarToggle) {
-    sidebarToggle.textContent = sidebarCollapsed ? "Show Sidebar" : "Hide Sidebar";
+    sidebarToggle.textContent = sidebarCollapsed ? "‹" : "›";
     sidebarToggle.classList.toggle("active", !sidebarCollapsed);
+    sidebarToggle.setAttribute("aria-label", sidebarCollapsed ? "Show sidebar" : "Hide sidebar");
+    sidebarToggle.title = sidebarCollapsed ? "Show sidebar" : "Hide sidebar";
   }
   writeUiState({ sidebarCollapsed });
 }
@@ -268,15 +274,6 @@ function playSound(type) {
 
   osc.start(now);
   osc.stop(now + duration);
-}
-
-if (playLink) {
-  playLink.addEventListener("click", (event) => {
-    event.preventDefault();
-    showTab("game");
-    ensureAudio();
-    focusGame();
-  });
 }
 
 tabButtons.forEach((button) => {
@@ -572,7 +569,7 @@ if (fullscreenToggle) {
 
 function renderFullscreenButton() {
   if (!fullscreenToggle) return;
-  fullscreenToggle.textContent = document.fullscreenElement ? "X" : "[]";
+  fullscreenToggle.textContent = document.fullscreenElement ? "✕" : "⛶";
   fullscreenToggle.classList.toggle("active", Boolean(document.fullscreenElement));
   fullscreenToggle.setAttribute("aria-label", document.fullscreenElement ? "Exit full screen" : "Enter full screen");
   fullscreenToggle.title = document.fullscreenElement ? "Exit full screen" : "Enter full screen";
@@ -585,7 +582,7 @@ document.addEventListener("fullscreenchange", () => {
 
 function renderMuteButton() {
   if (!muteToggle) return;
-  muteToggle.textContent = isMuted ? "MU" : "M";
+  muteToggle.textContent = isMuted ? "🔇" : "🔊";
   muteToggle.classList.toggle("active", isMuted);
   muteToggle.setAttribute("aria-label", isMuted ? "Unmute audio" : "Mute audio");
   muteToggle.title = isMuted ? "Unmute audio" : "Mute audio";
@@ -683,6 +680,13 @@ function setOnlineStatus(message) {
 
 function getPlayerName() {
   return (playerNameInput?.value || "Player").trim() || "Player";
+}
+
+function getLocalPlayerLabel(activePlayer, index) {
+  if (activePlayer === player) {
+    return getPlayerName();
+  }
+  return `Player ${index + 1}`;
 }
 
 function serializeSnapshot() {
@@ -930,7 +934,7 @@ creativeButton.addEventListener("click", () => {
 });
 
 function renderHeartsLegacy() {
-  if (!heartsRoot) return;
+  return;
 
   if (gameMode === "creative") {
     heartsRoot.innerHTML = `
@@ -3126,6 +3130,7 @@ canvas.addEventListener("click", () => {
 function renderViewport(activePlayer, viewport, index) {
   currentViewport = viewport;
   const cam = getCameraFor(activePlayer);
+  const playerLabel = getLocalPlayerLabel(activePlayer, index);
 
   ctx.save();
   ctx.beginPath();
@@ -3148,13 +3153,84 @@ function renderViewport(activePlayer, viewport, index) {
   ctx.lineWidth = 2;
   ctx.strokeRect(1, 1, viewport.width - 2, viewport.height - 2);
   ctx.fillStyle = "rgba(6, 12, 10, 0.62)";
-  ctx.fillRect(10, 10, 92, 24);
+  ctx.fillRect(10, 10, Math.max(92, playerLabel.length * 8 + 20), 24);
   ctx.fillStyle = "#eef6ea";
   ctx.font = "700 13px Trebuchet MS";
-  ctx.fillText(`Player ${index + 1}`, 18, 27);
+  ctx.fillText(playerLabel, 18, 27);
+  drawViewportHearts(activePlayer, index);
 
   ctx.restore();
   currentViewport = null;
+}
+
+function drawViewportHearts(activePlayer, index) {
+  const viewWidth = getViewWidth();
+  const viewHeight = getViewHeight();
+  const playerLabel = getLocalPlayerLabel(activePlayer, index);
+  const heartSize = Math.max(12, Math.min(22, Math.floor(viewWidth / 18)));
+  const gap = Math.max(3, Math.floor(heartSize * 0.16));
+  const labelWidth = Math.max(52, playerLabel.length * Math.max(7, heartSize - 6));
+  const statWidth = Math.max(44, Math.floor(heartSize * 2.2));
+  const rowHeight = heartSize + 8;
+  const totalWidth = labelWidth + activePlayer.maxHealth * (heartSize + gap) + statWidth;
+  const boxWidth = Math.min(viewWidth - 24, totalWidth + 10);
+  const boxX = Math.max(10, Math.floor((viewWidth - boxWidth) / 2));
+  const boxY = viewHeight - rowHeight - 10;
+  const startX = boxX + 6;
+  const heartY = boxY + 4;
+
+  ctx.fillStyle = "rgba(6, 12, 10, 0.74)";
+  ctx.fillRect(boxX, boxY, boxWidth, rowHeight);
+  ctx.strokeStyle = "rgba(255,255,255,0.12)";
+  ctx.lineWidth = 1;
+  ctx.strokeRect(boxX + 0.5, boxY + 0.5, boxWidth - 1, rowHeight - 1);
+
+  ctx.fillStyle = "#eef6ea";
+  ctx.font = `700 ${Math.max(11, heartSize - 2)}px Trebuchet MS`;
+  ctx.fillText(playerLabel, startX, heartY + heartSize - 4);
+
+  if (gameMode === "creative") {
+    ctx.fillStyle = "#ff9d9d";
+    ctx.font = `700 ${Math.max(14, heartSize)}px Trebuchet MS`;
+    ctx.fillText("∞", startX + labelWidth, heartY + heartSize - 4);
+    ctx.fillStyle = "#b8c8bc";
+    ctx.font = `700 ${Math.max(10, heartSize - 4)}px Trebuchet MS`;
+    ctx.fillText("Creative", startX + labelWidth + heartSize + 6, heartY + heartSize - 4);
+    return;
+  }
+
+  let currentX = startX + labelWidth;
+  for (let i = 0; i < activePlayer.maxHealth; i++) {
+    const heartLevel = activePlayer.health - i;
+    let heart = String.fromCharCode(9825);
+    let fill = "rgba(255, 255, 255, 0.22)";
+
+    if (heartLevel >= 1) {
+      heart = String.fromCharCode(9829);
+      fill = "#ff6b6b";
+    } else if (heartLevel >= 0.5) {
+      heart = "½";
+      fill = "#ff9d9d";
+    }
+
+    ctx.fillStyle = "rgba(255,255,255,0.08)";
+    ctx.beginPath();
+    ctx.arc(currentX + heartSize / 2, heartY + heartSize / 2, heartSize / 2, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.strokeStyle = "rgba(255,255,255,0.14)";
+    ctx.stroke();
+
+    ctx.fillStyle = fill;
+    ctx.font = `700 ${Math.max(12, heartSize - 4)}px Trebuchet MS`;
+    ctx.textAlign = "center";
+    ctx.fillText(heart, currentX + heartSize / 2, heartY + heartSize - 5);
+    currentX += heartSize + gap;
+  }
+
+  ctx.textAlign = "left";
+  ctx.fillStyle = "#b8c8bc";
+  ctx.font = `700 ${Math.max(10, heartSize - 4)}px Trebuchet MS`;
+  ctx.fillText(`${activePlayer.health}/${activePlayer.maxHealth}`, currentX + 2, heartY + heartSize - 4);
 }
 
 function renderFrame() {
@@ -3189,51 +3265,76 @@ function loop() {
   animationFrameId = requestAnimationFrame(loop);
 }
 
-function renderHearts() {
-  if (!heartsRoot) return;
-
-  if (gameMode === "creative") {
-    heartsRoot.innerHTML = `
-      <div class="heart-row">
-        <span class="heart-label">Mode</span>
-        <span class="heart">&infin;</span>
-        <span class="heart-label">Creative mode</span>
-      </div>
-    `;
-    return;
+renderGameRunState = function renderGameRunState() {
+  if (startGameButton) {
+    startGameButton.textContent = gamePaused ? (gameStarted ? "Resume" : "Start") : "Pause";
+    startGameButton.classList.toggle("active", !gamePaused);
+    startGameButton.setAttribute("aria-pressed", String(!gamePaused));
+    startGameButton.title = gamePaused ? (gameStarted ? "Resume the game" : "Start the game") : "Pause the game";
   }
+  if (gameRunStatus) {
+    gameRunStatus.textContent = gamePaused
+      ? gameStarted
+        ? "Paused. Press Resume to continue playing."
+        : "Paused. Press Start when you are ready to play."
+      : "Running. The game will auto-pause if you leave the tab.";
+  }
+};
 
-  const fullHeart = String.fromCharCode(9829);
-  const halfHeart = "&#189;";
-  const emptyHeart = String.fromCharCode(9825);
-  let markup = "";
+renderSidebarState = function renderSidebarState() {
+  if (gameLayout) {
+    gameLayout.classList.toggle("sidebar-collapsed", sidebarCollapsed);
+  }
+  if (sidebarToggle) {
+    setIconButtonIcon(
+      sidebarToggle,
+      sidebarCollapsed ? "fa-solid fa-chevron-left" : "fa-solid fa-chevron-right"
+    );
+    sidebarToggle.classList.toggle("active", !sidebarCollapsed);
+    sidebarToggle.setAttribute("aria-label", sidebarCollapsed ? "Show sidebar" : "Hide sidebar");
+    sidebarToggle.title = sidebarCollapsed ? "Show sidebar" : "Hide sidebar";
+  }
+  writeUiState({ sidebarCollapsed });
+};
 
-  getActivePlayers().forEach((activePlayer, index) => {
-    markup += `<div class="heart-row"><span class="heart-label">P${index + 1}</span>`;
-    for (let i = 0; i < activePlayer.maxHealth; i++) {
-      const heartLevel = activePlayer.health - i;
-      let heart = emptyHeart;
-      let stateClass = " empty";
+renderFullscreenButton = function renderFullscreenButton() {
+  if (!fullscreenToggle) return;
+  setIconButtonIcon(
+    fullscreenToggle,
+    document.fullscreenElement ? "fa-solid fa-compress" : "fa-solid fa-expand"
+  );
+  fullscreenToggle.classList.toggle("active", Boolean(document.fullscreenElement));
+  fullscreenToggle.setAttribute(
+    "aria-label",
+    document.fullscreenElement ? "Exit full screen" : "Enter full screen"
+  );
+  fullscreenToggle.title = document.fullscreenElement ? "Exit full screen" : "Enter full screen";
+};
 
-      if (heartLevel >= 1) {
-        heart = fullHeart;
-        stateClass = "";
-      } else if (heartLevel >= 0.5) {
-        heart = halfHeart;
-        stateClass = " half";
-      }
+renderMuteButton = function renderMuteButton() {
+  if (!muteToggle) return;
+  setIconButtonIcon(
+    muteToggle,
+    isMuted ? "fa-solid fa-volume-xmark" : "fa-solid fa-volume-high"
+  );
+  muteToggle.classList.toggle("active", isMuted);
+  muteToggle.setAttribute("aria-label", isMuted ? "Unmute audio" : "Mute audio");
+  muteToggle.title = isMuted ? "Unmute audio" : "Mute audio";
+  writeUiState({ isMuted });
+};
 
-      markup += `<span class="heart${stateClass}" aria-hidden="true">${heart}</span>`;
-    }
-    markup += `<span class="heart-label">${activePlayer.health}/${activePlayer.maxHealth}</span></div>`;
-  });
-
-  heartsRoot.innerHTML = markup;
+function renderHearts() {
+  renderFrame();
 }
 
 renderToolbar();
 renderInventory();
 renderCrafting();
+if (playerNameInput) {
+  playerNameInput.addEventListener("input", () => {
+    renderFrame();
+  });
+}
 showTab(initialTab);
 renderMode();
 renderPlayerCount();
