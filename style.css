@@ -346,11 +346,55 @@ body.fullscreen-game #game-tab-panel .game-layout.sidebar-collapsed {
   line-height: 1;
 }
 
-.icon-button i,
-.sidebar-icon-button i {
+.icon-button .fa-icon,
+.sidebar-icon-button .fa-icon {
   font-size: 1rem;
   line-height: 1;
   pointer-events: none;
+}
+
+.fa-icon {
+  display: inline-block;
+  width: 1rem;
+  height: 1rem;
+  background-color: currentColor;
+  pointer-events: none;
+  mask-position: center;
+  mask-repeat: no-repeat;
+  mask-size: contain;
+  -webkit-mask-position: center;
+  -webkit-mask-repeat: no-repeat;
+  -webkit-mask-size: contain;
+}
+
+.fa-icon-volume-high {
+  mask-image: url("assets/fa/volume-high.svg");
+  -webkit-mask-image: url("assets/fa/volume-high.svg");
+}
+
+.fa-icon-volume-xmark {
+  mask-image: url("assets/fa/volume-xmark.svg");
+  -webkit-mask-image: url("assets/fa/volume-xmark.svg");
+}
+
+.fa-icon-expand {
+  mask-image: url("assets/fa/expand.svg");
+  -webkit-mask-image: url("assets/fa/expand.svg");
+}
+
+.fa-icon-compress {
+  mask-image: url("assets/fa/compress.svg");
+  -webkit-mask-image: url("assets/fa/compress.svg");
+}
+
+.fa-icon-chevron-left {
+  mask-image: url("assets/fa/chevron-left.svg");
+  -webkit-mask-image: url("assets/fa/chevron-left.svg");
+}
+
+.fa-icon-chevron-right {
+  mask-image: url("assets/fa/chevron-right.svg");
+  -webkit-mask-image: url("assets/fa/chevron-right.svg");
 }
 
 .player-button {

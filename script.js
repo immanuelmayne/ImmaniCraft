@@ -61,9 +61,9 @@ function focusGame() {
   canvas.focus();
 }
 
-function setIconButtonIcon(button, iconClass) {
+function setIconButtonIcon(button, iconName) {
   if (!button) return;
-  button.innerHTML = `<i class="${iconClass}" aria-hidden="true"></i>`;
+  button.innerHTML = `<span class="fa-icon fa-icon-${iconName}" aria-hidden="true"></span>`;
 }
 
 function renderGameRunState() {
@@ -687,6 +687,13 @@ function getLocalPlayerLabel(activePlayer, index) {
     return getPlayerName();
   }
   return `Player ${index + 1}`;
+}
+
+function getPlayerControlHint(index) {
+  if (index === 0) return "Arrows Space Mouse";
+  if (index === 1) return "A D W F G";
+  if (index === 2) return "J L I U O";
+  return "4 6 8 7 9";
 }
 
 function serializeSnapshot() {
@@ -3167,12 +3174,15 @@ function drawViewportHearts(activePlayer, index) {
   const viewWidth = getViewWidth();
   const viewHeight = getViewHeight();
   const playerLabel = getLocalPlayerLabel(activePlayer, index);
+  const controlHint = getPlayerControlHint(index);
   const heartSize = Math.max(12, Math.min(22, Math.floor(viewWidth / 18)));
   const gap = Math.max(3, Math.floor(heartSize * 0.16));
   const labelWidth = Math.max(52, playerLabel.length * Math.max(7, heartSize - 6));
   const statWidth = Math.max(44, Math.floor(heartSize * 2.2));
+  const controlFontSize = Math.max(8, heartSize - 7);
+  const hintWidth = Math.max(60, controlHint.length * Math.max(4, controlFontSize - 2));
   const rowHeight = heartSize + 8;
-  const totalWidth = labelWidth + activePlayer.maxHealth * (heartSize + gap) + statWidth;
+  const totalWidth = labelWidth + activePlayer.maxHealth * (heartSize + gap) + statWidth + hintWidth;
   const boxWidth = Math.min(viewWidth - 24, totalWidth + 10);
   const boxX = Math.max(10, Math.floor((viewWidth - boxWidth) / 2));
   const boxY = viewHeight - rowHeight - 10;
@@ -3192,10 +3202,13 @@ function drawViewportHearts(activePlayer, index) {
   if (gameMode === "creative") {
     ctx.fillStyle = "#ff9d9d";
     ctx.font = `700 ${Math.max(14, heartSize)}px Trebuchet MS`;
-    ctx.fillText("∞", startX + labelWidth, heartY + heartSize - 4);
+    ctx.fillText("INF", startX + labelWidth, heartY + heartSize - 4);
     ctx.fillStyle = "#b8c8bc";
     ctx.font = `700 ${Math.max(10, heartSize - 4)}px Trebuchet MS`;
     ctx.fillText("Creative", startX + labelWidth + heartSize + 6, heartY + heartSize - 4);
+    ctx.fillStyle = "#9fb2a3";
+    ctx.font = `700 ${controlFontSize}px Trebuchet MS`;
+    ctx.fillText(controlHint, boxX + boxWidth - hintWidth - 6, heartY + heartSize - 4);
     return;
   }
 
@@ -3209,7 +3222,7 @@ function drawViewportHearts(activePlayer, index) {
       heart = String.fromCharCode(9829);
       fill = "#ff6b6b";
     } else if (heartLevel >= 0.5) {
-      heart = "½";
+      heart = "1/2";
       fill = "#ff9d9d";
     }
 
@@ -3231,6 +3244,10 @@ function drawViewportHearts(activePlayer, index) {
   ctx.fillStyle = "#b8c8bc";
   ctx.font = `700 ${Math.max(10, heartSize - 4)}px Trebuchet MS`;
   ctx.fillText(`${activePlayer.health}/${activePlayer.maxHealth}`, currentX + 2, heartY + heartSize - 4);
+
+  ctx.fillStyle = "#9fb2a3";
+  ctx.font = `700 ${controlFontSize}px Trebuchet MS`;
+  ctx.fillText(controlHint, Math.min(boxX + boxWidth - hintWidth - 6, currentX + statWidth + 4), heartY + heartSize - 4);
 }
 
 function renderFrame() {
@@ -3288,7 +3305,7 @@ renderSidebarState = function renderSidebarState() {
   if (sidebarToggle) {
     setIconButtonIcon(
       sidebarToggle,
-      sidebarCollapsed ? "fa-solid fa-chevron-left" : "fa-solid fa-chevron-right"
+      sidebarCollapsed ? "chevron-left" : "chevron-right"
     );
     sidebarToggle.classList.toggle("active", !sidebarCollapsed);
     sidebarToggle.setAttribute("aria-label", sidebarCollapsed ? "Show sidebar" : "Hide sidebar");
@@ -3301,7 +3318,7 @@ renderFullscreenButton = function renderFullscreenButton() {
   if (!fullscreenToggle) return;
   setIconButtonIcon(
     fullscreenToggle,
-    document.fullscreenElement ? "fa-solid fa-compress" : "fa-solid fa-expand"
+    document.fullscreenElement ? "compress" : "expand"
   );
   fullscreenToggle.classList.toggle("active", Boolean(document.fullscreenElement));
   fullscreenToggle.setAttribute(
@@ -3315,7 +3332,7 @@ renderMuteButton = function renderMuteButton() {
   if (!muteToggle) return;
   setIconButtonIcon(
     muteToggle,
-    isMuted ? "fa-solid fa-volume-xmark" : "fa-solid fa-volume-high"
+    isMuted ? "volume-xmark" : "volume-high"
   );
   muteToggle.classList.toggle("active", isMuted);
   muteToggle.setAttribute("aria-label", isMuted ? "Unmute audio" : "Mute audio");
