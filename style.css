@@ -216,6 +216,10 @@ h1 {
   min-height: 2rem;
 }
 
+.side-hearts {
+  align-items: center;
+}
+
 .heart {
   display: inline-flex;
   align-items: center;

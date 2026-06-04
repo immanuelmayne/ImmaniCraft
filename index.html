@@ -88,13 +88,17 @@
                 tabindex="0"
                 aria-label="ImmaniCraft playable sandbox"
               ></canvas>
-              <div class="hud-row">
-                <div class="hearts" id="hearts" aria-label="Health"></div>
-                <p class="hud-copy">Swim in water. In Survival, you heal half a heart every 30 seconds.</p>
-              </div>
             </section>
 
             <aside class="side-panel">
+              <details class="info-card dropdown-card" open>
+                <summary>Health</summary>
+                <div class="dropdown-content">
+                  <div class="hearts side-hearts" id="hearts" aria-label="Health"></div>
+                  <p class="hud-copy">Swim in water. In Survival, you heal half a heart every 30 seconds.</p>
+                </div>
+              </details>
+
               <details class="info-card dropdown-card">
                 <summary>Block Bar</summary>
                 <div class="dropdown-content">
