@@ -22,173 +22,199 @@
       </section>
 
       <section class="demo-shell" id="playground">
-        <div class="demo-copy">
-          <p class="eyebrow">Live Demo</p>
-          <h2>ImmaniCraft Playground</h2>
-          <p>
-            Arrow Left and Arrow Right move your character, Arrow Up or Space jumps and swims, left
-            click mines, and right click places blocks or opens doors.
-          </p>
+        <div class="tab-bar" aria-label="Page sections">
+          <button type="button" class="tab-button active" data-tab="home">Home</button>
+          <button type="button" class="tab-button" data-tab="game">Game</button>
+          <button type="button" class="tab-button" data-tab="settings">Settings</button>
         </div>
 
-        <div class="game-layout">
-          <section class="game-panel">
-            <details class="start-card dropdown-card">
-              <summary>How To Start</summary>
-              <div class="dropdown-content">
-                <p>Click inside the game, then use `Arrow Left`, `Arrow Right`, and `Arrow Up`.</p>
-                <p>Left click mines a block. Right click places the selected block or opens a door.</p>
-                <p>Click the page once to start the built-in ambient game music and sound effects.</p>
-                <p>Water lets you swim. Lava hurts you in Survival, so watch your hearts.</p>
-                <p>Stay underwater too long in Survival and you will drown, so come up for air.</p>
-                <p>Beds are 2 blocks tall. Right click a bed at night or during a thunder storm to sleep until morning or until the storm is over.</p>
-                <p>In Creative, tap `Space` two quick times to fly, then use `Space` up and `Shift` down.</p>
-                <p>Monsters take 10 hits to defeat. Villagers wander around villages during the day.</p>
-                <p>Thunder storms now last longer, flash across the sky, and do not hurt you.</p>
-                <p>Animals and sea animals now spawn in the world. Pick the `Lead` item and right click them to leash them.</p>
-                <p>Player 2 uses `A`, `D`, and `W` to move, `F` to mine in front, and `G` to place in front.</p>
-                <p>Player 3 uses `J`, `L`, and `I` to move, `U` to mine, and `O` to place. Player 4 uses numpad `4`, `6`, `8`, `7`, and `9`.</p>
-                <p>Nether portals are 2 blocks tall now. Step into one to switch between the Overworld and the Nether.</p>
-                <p>Snow, ice, buckets, and water buckets are in the world now too.</p>
-                <p>Use the `Full Screen` button for a bigger split-screen view.</p>
-              </div>
-            </details>
-            <div class="mode-bar" aria-label="Game mode switcher">
-              <button type="button" class="mode-button active" id="mode-survival">Survival</button>
-              <button type="button" class="mode-button" id="mode-creative">Creative</button>
-              <p id="mode-copy" class="mode-copy">Survival uses real inventory counts.</p>
-            </div>
-            <div class="player-bar" aria-label="Player count switcher">
-              <button type="button" class="player-button active" data-player-count="1">1 Player</button>
-              <button type="button" class="player-button" data-player-count="2">2 Players</button>
-              <button type="button" class="player-button" data-player-count="3">3 Players</button>
-              <button type="button" class="player-button" data-player-count="4">4 Players</button>
-              <button type="button" class="player-button" id="fullscreen-toggle">Full Screen</button>
-              <button type="button" class="player-button" id="mute-toggle">Mute</button>
-              <p id="player-copy" class="mode-copy">Choose `1-4` local players. Extra players get their own screen.</p>
-            </div>
-            <canvas
-              id="game"
-              width="960"
-              height="540"
-              tabindex="0"
-              aria-label="ImmaniCraft playable sandbox"
-            ></canvas>
-            <div class="hud-row">
-              <div class="hearts" id="hearts" aria-label="Health"></div>
-              <p class="hud-copy">Swim in water. In Survival, you heal half a heart every 30 seconds.</p>
-            </div>
-            <div class="toolbar" id="toolbar" aria-label="Inventory hotbar"></div>
-          </section>
+        <section class="tab-panel active" data-panel="home">
+          <div class="demo-copy">
+            <p class="eyebrow">Home</p>
+            <h2>ImmaniCraft Playground</h2>
+            <p>
+              Arrow Left and Arrow Right move your character, Arrow Up or Space jumps and swims, left
+              click mines, and right click places blocks or opens doors.
+            </p>
+          </div>
 
-          <aside class="side-panel">
-            <details class="info-card dropdown-card" open>
-              <summary>Online Multiplayer</summary>
-              <div class="dropdown-content">
-                <p class="card-copy">Host a room or join a shared world. Everyone in a room sees the same map and block changes.</p>
-                <div class="inventory-list">
-                  <label class="mini-label" for="server-url">Server URL</label>
-                  <input id="server-url" type="text" value="http://localhost:3000" />
-                  <label class="mini-label" for="player-name">Your Name</label>
-                  <input id="player-name" type="text" value="Player" />
-                  <label class="mini-label" for="room-code">Room Code</label>
-                  <input id="room-code" type="text" placeholder="Enter room code" />
+          <div class="game-layout info-layout">
+            <section class="game-panel">
+              <details class="start-card dropdown-card" open>
+                <summary>How To Start</summary>
+                <div class="dropdown-content">
+                  <p>Click inside the game, then use `Arrow Left`, `Arrow Right`, and `Arrow Up`.</p>
+                  <p>Left click mines a block. Right click places the selected block or opens a door.</p>
+                  <p>Click the page once to start the built-in ambient game music and sound effects.</p>
+                  <p>Water lets you swim. Lava hurts you in Survival, so watch your hearts.</p>
+                  <p>Stay underwater too long in Survival and you will drown, so come up for air.</p>
+                  <p>Beds are 2 blocks tall. Right click a bed at night or during a thunder storm to sleep until morning or until the storm is over.</p>
+                  <p>In Creative, tap `Space` two quick times to fly, then use `Space` up and `Shift` down.</p>
+                  <p>Monsters take 10 hits to defeat. Villagers wander around villages during the day.</p>
+                  <p>Thunder storms now last longer, flash across the sky, and do not hurt you.</p>
+                  <p>Animals and sea animals now spawn in the world. Pick the `Lead` item and right click them to leash them.</p>
+                  <p>Player 2 uses `A`, `D`, and `W` to move, `F` to mine in front, and `G` to place in front.</p>
+                  <p>Player 3 uses `J`, `L`, and `I` to move, `U` to mine, and `O` to place. Player 4 uses numpad `4`, `6`, `8`, `7`, and `9`.</p>
+                  <p>Nether portals are 2 blocks tall now. Step into one to switch between the Overworld and the Nether.</p>
+                  <p>Snow, ice, buckets, and water buckets are in the world now too.</p>
+                  <p>Use the `Full Screen` button for a bigger split-screen view.</p>
                 </div>
-                <div class="recipe-list">
-                  <button type="button" class="craft-button" id="host-room">
-                    <span class="recipe-name">Host Room</span>
-                    <span class="recipe-cost">Start a shared world</span>
-                  </button>
-                  <button type="button" class="craft-button" id="join-room">
-                    <span class="recipe-name">Join Room</span>
-                    <span class="recipe-cost">Enter an existing room</span>
-                  </button>
+              </details>
+            </section>
+
+            <aside class="side-panel">
+              <details class="info-card dropdown-card" open>
+                <summary>Game Info</summary>
+                <div class="dropdown-content">
+                  <ul class="feature-list compact-list">
+                    <li>Natural wood-and-leaf trees that spawn on their own</li>
+                    <li>Water, lava, snow, ice, volcanoes, nether portals, rain, longer thunder storms, and a day-to-night world cycle</li>
+                    <li>Doors and nether portals use 2-block-tall structures, with portal travel into the Nether</li>
+                    <li>A much bigger looping world with larger villages, brown-robed long-nosed villagers, stronger faux-3D depth, animals, sea animals, leads, buckets, food and water stations, and local 1-4 player split-screen</li>
+                  </ul>
                 </div>
-                <p id="online-status" class="status-text">Run `npm start`, open `http://localhost:3000`, then host or join a room.</p>
-              </div>
-            </details>
+              </details>
+            </aside>
+          </div>
+        </section>
 
-            <details class="info-card dropdown-card">
-              <summary>Inventory</summary>
-              <div class="dropdown-content">
-                <div id="inventory" class="inventory-list"></div>
+        <section class="tab-panel" data-panel="game">
+          <div class="game-layout">
+            <section class="game-panel">
+              <canvas
+                id="game"
+                width="960"
+                height="540"
+                tabindex="0"
+                aria-label="ImmaniCraft playable sandbox"
+              ></canvas>
+              <div class="hud-row">
+                <div class="hearts" id="hearts" aria-label="Health"></div>
+                <p class="hud-copy">Swim in water. In Survival, you heal half a heart every 30 seconds.</p>
               </div>
-            </details>
+              <div class="toolbar" id="toolbar" aria-label="Inventory hotbar"></div>
+            </section>
 
-            <details class="info-card dropdown-card">
-              <summary>Crafting Station</summary>
-              <div class="dropdown-content">
-                <p class="card-copy">Craft more than doors: planks, stone brick, glass, torches, buckets, nether portals, and beds too.</p>
-                <div id="crafting-recipes" class="recipe-list"></div>
-                <p id="craft-status" class="status-text">Mine materials, then craft new blocks here.</p>
-              </div>
-            </details>
-
-            <details class="info-card dropdown-card">
-              <summary>Food Station</summary>
-              <div class="dropdown-content">
-                <p class="card-copy">Eat meat from creatures to heal in Survival.</p>
-                <div class="recipe-list">
-                  <button type="button" class="craft-button" id="eat-meat">
-                    <span class="recipe-name">Eat Meat</span>
-                    <span class="recipe-cost">Uses: 1 Meat, heals 1 heart</span>
-                  </button>
+            <aside class="side-panel">
+              <details class="info-card dropdown-card">
+                <summary>Inventory</summary>
+                <div class="dropdown-content">
+                  <div id="inventory" class="inventory-list"></div>
                 </div>
-                <p id="food-status" class="status-text">Bring back meat from animals and monsters.</p>
-              </div>
-            </details>
+              </details>
 
-            <details class="info-card dropdown-card">
-              <summary>Water Station</summary>
-              <div class="dropdown-content">
-                <p class="card-copy">Use water to refill air when the world gets dangerous.</p>
-                <div class="recipe-list">
-                  <button type="button" class="craft-button" id="drink-water">
-                    <span class="recipe-name">Drink Water</span>
-                    <span class="recipe-cost">Uses: 1 Water, refills air for active players</span>
-                  </button>
+              <details class="info-card dropdown-card">
+                <summary>Crafting Station</summary>
+                <div class="dropdown-content">
+                  <p class="card-copy">Craft more than doors: planks, stone brick, glass, torches, buckets, nether portals, and beds too.</p>
+                  <div id="crafting-recipes" class="recipe-list"></div>
+                  <p id="craft-status" class="status-text">Mine materials, then craft new blocks here.</p>
                 </div>
-                <p id="water-status" class="status-text">Water helps after swimming and drowning scares.</p>
-              </div>
-            </details>
+              </details>
 
-            <details class="info-card dropdown-card">
-              <summary>Drowning Station</summary>
-              <div class="dropdown-content">
-                <p class="card-copy">Watch each active player's air while swimming.</p>
-                <div id="drowning-status" class="status-grid"></div>
-              </div>
-            </details>
-
-            <details class="info-card dropdown-card" open>
-              <summary>World Status</summary>
-              <div class="dropdown-content">
-                <div class="status-grid">
-                  <div>
-                    <p class="mini-label">Time</p>
-                    <strong id="time-status">Day</strong>
+              <details class="info-card dropdown-card">
+                <summary>Food Station</summary>
+                <div class="dropdown-content">
+                  <p class="card-copy">Eat meat from creatures to heal in Survival.</p>
+                  <div class="recipe-list">
+                    <button type="button" class="craft-button" id="eat-meat">
+                      <span class="recipe-name">Eat Meat</span>
+                      <span class="recipe-cost">Uses: 1 Meat, heals 1 heart</span>
+                    </button>
                   </div>
-                  <div>
-                    <p class="mini-label">Weather</p>
-                    <strong id="weather-status">Rain</strong>
+                  <p id="food-status" class="status-text">Bring back meat from animals and monsters.</p>
+                </div>
+              </details>
+
+              <details class="info-card dropdown-card">
+                <summary>Water Station</summary>
+                <div class="dropdown-content">
+                  <p class="card-copy">Use water to refill air when the world gets dangerous.</p>
+                  <div class="recipe-list">
+                    <button type="button" class="craft-button" id="drink-water">
+                      <span class="recipe-name">Drink Water</span>
+                      <span class="recipe-cost">Uses: 1 Water, refills air for active players</span>
+                    </button>
+                  </div>
+                  <p id="water-status" class="status-text">Water helps after swimming and drowning scares.</p>
+                </div>
+              </details>
+
+              <details class="info-card dropdown-card">
+                <summary>Drowning Station</summary>
+                <div class="dropdown-content">
+                  <p class="card-copy">Watch each active player's air while swimming.</p>
+                  <div id="drowning-status" class="status-grid"></div>
+                </div>
+              </details>
+
+              <details class="info-card dropdown-card" open>
+                <summary>World Status</summary>
+                <div class="dropdown-content">
+                  <div class="status-grid">
+                    <div>
+                      <p class="mini-label">Time</p>
+                      <strong id="time-status">Day</strong>
+                    </div>
+                    <div>
+                      <p class="mini-label">Weather</p>
+                      <strong id="weather-status">Rain</strong>
+                    </div>
                   </div>
                 </div>
-              </div>
-            </details>
+              </details>
+            </aside>
+          </div>
+        </section>
 
-            <details class="info-card dropdown-card">
-              <summary>In This World</summary>
-              <div class="dropdown-content">
-                <ul class="feature-list compact-list">
-                  <li>Natural wood-and-leaf trees that spawn on their own</li>
-                  <li>Water, lava, snow, ice, volcanoes, nether portals, rain, longer thunder storms, and a day-to-night world cycle</li>
-                  <li>Doors and nether portals use 2-block-tall structures, with portal travel into the Nether</li>
-                  <li>A much bigger looping world with larger villages, brown-robed long-nosed villagers, stronger faux-3D depth, animals, sea animals, leads, buckets, food and water stations, and local 1-4 player split-screen</li>
-                </ul>
+        <section class="tab-panel" data-panel="settings">
+          <div class="game-layout info-layout">
+            <section class="game-panel">
+              <div class="mode-bar" aria-label="Game mode switcher">
+                <button type="button" class="mode-button active" id="mode-survival">Survival</button>
+                <button type="button" class="mode-button" id="mode-creative">Creative</button>
+                <p id="mode-copy" class="mode-copy">Survival uses real inventory counts.</p>
               </div>
-            </details>
-          </aside>
-        </div>
+              <div class="player-bar" aria-label="Player count switcher">
+                <button type="button" class="player-button active" data-player-count="1">1 Player</button>
+                <button type="button" class="player-button" data-player-count="2">2 Players</button>
+                <button type="button" class="player-button" data-player-count="3">3 Players</button>
+                <button type="button" class="player-button" data-player-count="4">4 Players</button>
+                <button type="button" class="player-button" id="fullscreen-toggle">Full Screen</button>
+                <button type="button" class="player-button" id="mute-toggle">Mute</button>
+                <p id="player-copy" class="mode-copy">Choose `1-4` local players. Extra players get their own screen.</p>
+              </div>
+            </section>
+
+            <aside class="side-panel">
+              <details class="info-card dropdown-card" open>
+                <summary>Online Multiplayer</summary>
+                <div class="dropdown-content">
+                  <p class="card-copy">Host a room or join a shared world. Everyone in a room sees the same map and block changes.</p>
+                  <div class="inventory-list">
+                    <label class="mini-label" for="server-url">Server URL</label>
+                    <input id="server-url" type="text" value="http://localhost:3000" />
+                    <label class="mini-label" for="player-name">Your Name</label>
+                    <input id="player-name" type="text" value="Player" />
+                    <label class="mini-label" for="room-code">Room Code</label>
+                    <input id="room-code" type="text" placeholder="Enter room code" />
+                  </div>
+                  <div class="recipe-list">
+                    <button type="button" class="craft-button" id="host-room">
+                      <span class="recipe-name">Host Room</span>
+                      <span class="recipe-cost">Start a shared world</span>
+                    </button>
+                    <button type="button" class="craft-button" id="join-room">
+                      <span class="recipe-name">Join Room</span>
+                      <span class="recipe-cost">Enter an existing room</span>
+                    </button>
+                  </div>
+                  <p id="online-status" class="status-text">Run `npm start`, open `http://localhost:3000`, then host or join a room.</p>
+                </div>
+              </details>
+            </aside>
+          </div>
+        </section>
       </section>
     </main>
 

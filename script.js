@@ -21,6 +21,8 @@ const playerCopy = document.getElementById("player-copy");
 const playerButtons = Array.from(document.querySelectorAll(".player-button"));
 const fullscreenToggle = document.getElementById("fullscreen-toggle");
 const muteToggle = document.getElementById("mute-toggle");
+const tabButtons = Array.from(document.querySelectorAll(".tab-button"));
+const tabPanels = Array.from(document.querySelectorAll(".tab-panel"));
 const serverUrlInput = document.getElementById("server-url");
 const playerNameInput = document.getElementById("player-name");
 const roomCodeInput = document.getElementById("room-code");
@@ -31,6 +33,15 @@ const onlineStatus = document.getElementById("online-status");
 function focusGame() {
   canvas.scrollIntoView({ behavior: "smooth", block: "center" });
   canvas.focus();
+}
+
+function showTab(tabName) {
+  tabButtons.forEach((button) => {
+    button.classList.toggle("active", button.dataset.tab === tabName);
+  });
+  tabPanels.forEach((panel) => {
+    panel.classList.toggle("active", panel.dataset.panel === tabName);
+  });
 }
 
 function ensureAudio() {
@@ -202,10 +213,20 @@ function playSound(type) {
 if (playLink) {
   playLink.addEventListener("click", (event) => {
     event.preventDefault();
+    showTab("game");
     ensureAudio();
     focusGame();
   });
 }
+
+tabButtons.forEach((button) => {
+  button.addEventListener("click", () => {
+    showTab(button.dataset.tab);
+    if (button.dataset.tab === "game") {
+      focusGame();
+    }
+  });
+});
 
 const TILE = 24;
 const COLS = 320;
