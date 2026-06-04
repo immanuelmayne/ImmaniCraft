@@ -208,6 +208,14 @@ body.fullscreen-game #game-tab-panel .game-layout {
   gap: 1rem;
 }
 
+.game-layout.sidebar-collapsed {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.game-layout.sidebar-collapsed .side-panel {
+  display: none;
+}
+
 .info-layout {
   align-items: start;
 }
@@ -318,6 +326,12 @@ body.fullscreen-game #game-tab-panel .game-layout {
   font: inherit;
   font-weight: 700;
   cursor: pointer;
+}
+
+.icon-button {
+  min-width: 2.75rem;
+  padding: 0.65rem;
+  text-align: center;
 }
 
 .player-button {

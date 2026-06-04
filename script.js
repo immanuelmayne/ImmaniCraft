@@ -17,16 +17,17 @@ const heartsRoot = document.getElementById("hearts");
 const survivalButton = document.getElementById("mode-survival");
 const creativeButton = document.getElementById("mode-creative");
 const startGameButton = document.getElementById("start-game");
-const pauseGameButton = document.getElementById("pause-game");
 const gameRunStatus = document.getElementById("game-run-status");
 const modeCopy = document.getElementById("mode-copy");
 const playerCopy = document.getElementById("player-copy");
 const playerButtons = Array.from(document.querySelectorAll(".player-button"));
 const fullscreenToggle = document.getElementById("fullscreen-toggle");
 const muteToggle = document.getElementById("mute-toggle");
+const sidebarToggle = document.getElementById("sidebar-toggle");
 const tabButtons = Array.from(document.querySelectorAll(".tab-button"));
 const tabPanels = Array.from(document.querySelectorAll(".tab-panel"));
 const gameTabPanel = document.getElementById("game-tab-panel");
+const gameLayout = document.getElementById("game-layout");
 const serverUrlInput = document.getElementById("server-url");
 const playerNameInput = document.getElementById("player-name");
 const roomCodeInput = document.getElementById("room-code");
@@ -34,6 +35,8 @@ const hostRoomButton = document.getElementById("host-room");
 const joinRoomButton = document.getElementById("join-room");
 const onlineStatus = document.getElementById("online-status");
 const STORAGE_KEY = "immanicraft-ui-state";
+let activeTab = "home";
+let sidebarCollapsed = false;
 
 function readUiState() {
   try {
@@ -63,10 +66,8 @@ function focusGame() {
 
 function renderGameRunState() {
   if (startGameButton) {
-    startGameButton.textContent = gameStarted && gamePaused ? "Resume" : "Start";
-  }
-  if (pauseGameButton) {
-    pauseGameButton.disabled = !gameStarted || gamePaused;
+    startGameButton.textContent = gamePaused ? (gameStarted ? "Resume" : "Start") : "Pause";
+    startGameButton.classList.toggle("active", !gamePaused);
   }
   if (gameRunStatus) {
     gameRunStatus.textContent = gamePaused
@@ -77,14 +78,30 @@ function renderGameRunState() {
   }
 }
 
+function renderSidebarState() {
+  if (gameLayout) {
+    gameLayout.classList.toggle("sidebar-collapsed", sidebarCollapsed);
+  }
+  if (sidebarToggle) {
+    sidebarToggle.textContent = sidebarCollapsed ? "Show Sidebar" : "Hide Sidebar";
+    sidebarToggle.classList.toggle("active", !sidebarCollapsed);
+  }
+  writeUiState({ sidebarCollapsed });
+}
+
 function showTab(tabName) {
+  const wasGameTab = activeTab === "game";
   tabButtons.forEach((button) => {
     button.classList.toggle("active", button.dataset.tab === tabName);
   });
   tabPanels.forEach((panel) => {
     panel.classList.toggle("active", panel.dataset.panel === tabName);
   });
+  activeTab = tabName;
   writeUiState({ activeTab: tabName });
+  if (wasGameTab && tabName !== "game") {
+    pauseGame("Paused because you left the Game tab.");
+  }
 }
 
 function ensureAudio() {
@@ -555,7 +572,10 @@ if (fullscreenToggle) {
 
 function renderFullscreenButton() {
   if (!fullscreenToggle) return;
-  fullscreenToggle.textContent = document.fullscreenElement ? "Exit Full Screen" : "Full Screen";
+  fullscreenToggle.textContent = document.fullscreenElement ? "X" : "[]";
+  fullscreenToggle.classList.toggle("active", Boolean(document.fullscreenElement));
+  fullscreenToggle.setAttribute("aria-label", document.fullscreenElement ? "Exit full screen" : "Enter full screen");
+  fullscreenToggle.title = document.fullscreenElement ? "Exit full screen" : "Enter full screen";
 }
 
 document.addEventListener("fullscreenchange", () => {
@@ -565,8 +585,10 @@ document.addEventListener("fullscreenchange", () => {
 
 function renderMuteButton() {
   if (!muteToggle) return;
-  muteToggle.textContent = isMuted ? "Unmute" : "Mute";
+  muteToggle.textContent = isMuted ? "MU" : "M";
   muteToggle.classList.toggle("active", isMuted);
+  muteToggle.setAttribute("aria-label", isMuted ? "Unmute audio" : "Mute audio");
+  muteToggle.title = isMuted ? "Unmute audio" : "Mute audio";
   writeUiState({ isMuted });
 }
 
@@ -587,6 +609,13 @@ if (muteToggle) {
     } catch {
       updateStatus("Audio could not change right now.");
     }
+  });
+}
+
+if (sidebarToggle) {
+  sidebarToggle.addEventListener("click", () => {
+    sidebarCollapsed = !sidebarCollapsed;
+    renderSidebarState();
   });
 }
 
@@ -622,14 +651,12 @@ function pauseGame(reason = "") {
 
 if (startGameButton) {
   startGameButton.addEventListener("click", () => {
-    startGame();
-    focusGame();
-  });
-}
-
-if (pauseGameButton) {
-  pauseGameButton.addEventListener("click", () => {
-    pauseGame("Paused. Press Resume to continue playing.");
+    if (gamePaused) {
+      startGame();
+      focusGame();
+    } else {
+      pauseGame("Paused. Press Resume to continue playing.");
+    }
   });
 }
 
@@ -881,6 +908,9 @@ if (Number.isInteger(initialUiState.activePlayerCount) && initialUiState.activeP
 }
 if (typeof initialUiState.isMuted === "boolean") {
   isMuted = initialUiState.isMuted;
+}
+if (typeof initialUiState.sidebarCollapsed === "boolean") {
+  sidebarCollapsed = initialUiState.sidebarCollapsed;
 }
 const initialTab = typeof initialUiState.activeTab === "string" ? initialUiState.activeTab : "home";
 
@@ -3206,6 +3236,7 @@ renderMode();
 renderPlayerCount();
 renderMuteButton();
 renderFullscreenButton();
+renderSidebarState();
 renderGameRunState();
 renderHearts();
 refreshWorldStatus();

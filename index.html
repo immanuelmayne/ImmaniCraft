@@ -79,12 +79,13 @@
         </section>
 
         <section class="tab-panel" data-panel="game" id="game-tab-panel">
-          <div class="game-layout">
+          <div class="game-layout" id="game-layout">
             <section class="game-panel">
               <div class="game-run-bar" aria-label="Game playback controls">
                 <button type="button" class="mode-button" id="start-game">Start</button>
-                <button type="button" class="mode-button" id="pause-game">Pause</button>
-                <button type="button" class="mode-button" id="fullscreen-toggle">Full Screen</button>
+                <button type="button" class="mode-button icon-button" id="mute-toggle" aria-label="Mute audio" title="Mute audio">M</button>
+                <button type="button" class="mode-button icon-button" id="fullscreen-toggle" aria-label="Toggle full screen" title="Toggle full screen">[]</button>
+                <button type="button" class="mode-button" id="sidebar-toggle">Hide Sidebar</button>
                 <p id="game-run-status" class="mode-copy">Paused. Press Start when you are ready to play.</p>
               </div>
               <canvas
@@ -196,7 +197,6 @@
                 <button type="button" class="player-button" data-player-count="2">2 Players</button>
                 <button type="button" class="player-button" data-player-count="3">3 Players</button>
                 <button type="button" class="player-button" data-player-count="4">4 Players</button>
-                <button type="button" class="player-button" id="mute-toggle">Mute</button>
                 <p id="player-copy" class="mode-copy">Choose `1-4` local players. Extra players get their own screen.</p>
               </div>
             </section>
