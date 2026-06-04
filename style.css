@@ -373,6 +373,11 @@ canvas {
   margin-top: 0.85rem;
 }
 
+.side-toolbar {
+  grid-template-columns: 1fr;
+  margin-top: 0;
+}
+
 .slot {
   display: grid;
   gap: 0.4rem;
