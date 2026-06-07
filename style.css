@@ -491,6 +491,64 @@ canvas {
   background: linear-gradient(180deg, #7ecbff 0%, #c6efff 58%, #d2f4ff 100%);
   outline: none;
   cursor: crosshair;
+  touch-action: none;
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.touch-panel {
+  display: none;
+  gap: 0.8rem;
+  margin-top: 0.9rem;
+  padding: 0.9rem;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.touch-copy {
+  margin-bottom: 0;
+  color: var(--muted);
+  font-size: 0.95rem;
+}
+
+.touch-grid {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.touch-move,
+.touch-actions {
+  display: grid;
+  gap: 0.7rem;
+}
+
+.touch-move {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.touch-actions {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.touch-button {
+  min-height: 3.2rem;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--text);
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.touch-button:active,
+.touch-button.active {
+  background: linear-gradient(135deg, rgba(188, 239, 255, 0.95) 0%, rgba(133, 208, 255, 0.95) 100%);
+  color: #102013;
 }
 
 .toolbar {
@@ -622,16 +680,64 @@ canvas {
   .game-layout {
     grid-template-columns: 1fr;
   }
+
+  .touch-panel {
+    display: grid;
+  }
+}
+
+@media (pointer: coarse) {
+  .touch-panel {
+    display: grid;
+  }
+
+  .game-run-bar,
+  .player-bar,
+  .mode-bar {
+    gap: 0.6rem;
+  }
+
+  .mode-button,
+  .player-button,
+  .touch-button,
+  .tab-button {
+    min-height: 3rem;
+  }
+
+  canvas {
+    cursor: default;
+  }
 }
 
 @media (max-width: 720px) {
   .page-shell {
     padding-top: 3rem;
   }
+
+  .tab-bar {
+    gap: 0.55rem;
+  }
+
+  .tab-button,
+  .mode-button,
+  .player-button {
+    min-height: 3rem;
+  }
+
+  .game-run-bar,
+  .player-bar,
+  .mode-bar {
+    gap: 0.55rem;
+  }
 }
 
 @media (max-width: 560px) {
   .status-grid {
     grid-template-columns: 1fr;
+  }
+
+  .touch-move,
+  .touch-actions {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }

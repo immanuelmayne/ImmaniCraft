@@ -23,6 +23,9 @@ const muteToggle = document.getElementById("mute-toggle");
 const saveLink = document.getElementById("save-link");
 const loadSaveButton = document.getElementById("load-save");
 const loadSaveInput = document.getElementById("load-save-input");
+const touchKeyButtons = Array.from(document.querySelectorAll("[data-touch-key]"));
+const touchMineButton = document.getElementById("touch-mine");
+const touchPlaceButton = document.getElementById("touch-place");
 const sidebarToggle = document.getElementById("sidebar-toggle");
 const tabButtons = Array.from(document.querySelectorAll(".tab-button"));
 const tabPanels = Array.from(document.querySelectorAll(".tab-panel"));
@@ -492,6 +495,7 @@ let worldTick = 0;
 let liquidTick = 0;
 let gameMode = "survival";
 let lastSpaceTap = -1000;
+let lastTouchJumpTap = -1000;
 let currentDimension = "overworld";
 let portalCooldown = 0;
 let activePlayerCount = 1;
@@ -703,7 +707,7 @@ function getLocalPlayerLabel(activePlayer, index) {
 }
 
 function getPlayerControlHint(index) {
-  if (index === 0) return "Arrows Space Mouse";
+  if (index === 0) return "Touch / Arrows";
   if (index === 1) return "A D W F G";
   if (index === 2) return "J L I U O";
   return "4 6 8 7 9";
@@ -934,6 +938,45 @@ function refreshSaveLink() {
   saveLink.download = `immanicraft-save-${stamp}.json`;
 }
 
+function setTouchKeyState(code, pressed) {
+  if (pressed) {
+    keys.add(code);
+  } else {
+    keys.delete(code);
+  }
+}
+
+function bindTouchMovementButton(button, code) {
+  if (!button) return;
+
+  const press = (event) => {
+    event.preventDefault();
+    ensureAudio();
+    if (code === "Space" && gameMode === "creative") {
+      if (performance.now() - lastTouchJumpTap < 280) {
+        player.isFlying = !player.isFlying;
+        player.vy = 0;
+        player.onGround = false;
+        updateStatus(player.isFlying ? "Creative flight on." : "Creative flight off.");
+      }
+      lastTouchJumpTap = performance.now();
+    }
+    setTouchKeyState(code, true);
+    button.classList.add("active");
+  };
+
+  const release = (event) => {
+    event.preventDefault();
+    setTouchKeyState(code, false);
+    button.classList.remove("active");
+  };
+
+  button.addEventListener("pointerdown", press);
+  button.addEventListener("pointerup", release);
+  button.addEventListener("pointercancel", release);
+  button.addEventListener("pointerleave", release);
+}
+
 function applySnapshot(snapshot) {
   if (!snapshot?.dimensions?.overworld?.world || !snapshot?.dimensions?.nether?.world) return;
   dimensions.overworld.world = snapshot.dimensions.overworld.world;
@@ -1155,6 +1198,28 @@ if (loadSaveButton && loadSaveInput) {
     } finally {
       loadSaveInput.value = "";
     }
+  });
+}
+
+touchKeyButtons.forEach((button) => {
+  bindTouchMovementButton(button, button.dataset.touchKey);
+});
+
+if (touchMineButton) {
+  touchMineButton.addEventListener("click", (event) => {
+    event.preventDefault();
+    ensureAudio();
+    mineAtTarget(getPrimaryTouchTarget());
+    canvas.focus();
+  });
+}
+
+if (touchPlaceButton) {
+  touchPlaceButton.addEventListener("click", (event) => {
+    event.preventDefault();
+    ensureAudio();
+    placeAtTarget(getPrimaryTouchTarget());
+    canvas.focus();
   });
 }
 
@@ -3123,6 +3188,27 @@ function useLeadAt(x, y) {
   return true;
 }
 
+function getPrimaryTouchTarget() {
+  if (cursorTile && cursorTile.y >= 0 && cursorTile.y < ROWS) {
+    return cursorTile;
+  }
+  return getReachTile(player);
+}
+
+function mineAtTarget(target) {
+  if (!target) return;
+  if (hitMonster(target.x, target.y) || mineVillager(target.x, target.y) || mineAnimal(target.x, target.y)) {
+    return;
+  }
+  breakBlock(target.x, target.y);
+}
+
+function placeAtTarget(target) {
+  if (!target) return;
+  if (useLeadAt(target.x, target.y)) return;
+  placeBlock(target.x, target.y);
+}
+
 function getReachTile(entity) {
   return {
     x: Math.floor((entity.x + entity.width / 2) / TILE) + entity.facing,
@@ -3348,10 +3434,14 @@ window.addEventListener("keyup", (event) => {
 });
 
 canvas.addEventListener("mousemove", (event) => {
+  updateCursorFromClient(event.clientX, event.clientY);
+});
+
+function updateCursorFromClient(clientX, clientY) {
   const rect = canvas.getBoundingClientRect();
   const firstViewport = getViewports()[0];
-  const localX = ((event.clientX - rect.left) * canvas.width) / rect.width;
-  const localY = ((event.clientY - rect.top) * canvas.height) / rect.height;
+  const localX = ((clientX - rect.left) * canvas.width) / rect.width;
+  const localY = ((clientY - rect.top) * canvas.height) / rect.height;
 
   if (
     localX < firstViewport.x ||
@@ -3360,7 +3450,7 @@ canvas.addEventListener("mousemove", (event) => {
     localY > firstViewport.y + firstViewport.height
   ) {
     cursorTile = null;
-    return;
+    return false;
   }
 
   currentViewport = firstViewport;
@@ -3369,19 +3459,19 @@ canvas.addEventListener("mousemove", (event) => {
   const y = Math.floor((localY - firstViewport.y + cam.y) / TILE);
   currentViewport = null;
   cursorTile = { x, y };
-});
+  return true;
+}
 
 canvas.addEventListener("mousedown", (event) => {
-  if (!cursorTile) return;
-  const { x, y } = cursorTile;
+  const target = getPrimaryTouchTarget();
+  if (!target) return;
+  const { x, y } = target;
   if (y < 0 || y >= ROWS) return;
 
   if (event.button === 0) {
-    if (hitMonster(x, y) || mineVillager(x, y) || mineAnimal(x, y)) return;
-    breakBlock(x, y);
+    mineAtTarget({ x, y });
   } else if (event.button === 2) {
-    if (useLeadAt(x, y)) return;
-    placeBlock(x, y);
+    placeAtTarget({ x, y });
   }
 });
 
@@ -3389,6 +3479,20 @@ canvas.addEventListener("contextmenu", (event) => event.preventDefault());
 canvas.addEventListener("click", () => {
   ensureAudio();
   canvas.focus();
+});
+
+canvas.addEventListener("pointerdown", (event) => {
+  if (event.pointerType === "mouse") return;
+  event.preventDefault();
+  ensureAudio();
+  updateCursorFromClient(event.clientX, event.clientY);
+  canvas.focus();
+});
+
+canvas.addEventListener("pointermove", (event) => {
+  if (event.pointerType === "mouse") return;
+  event.preventDefault();
+  updateCursorFromClient(event.clientX, event.clientY);
 });
 
 function renderViewport(activePlayer, viewport, index) {

@@ -41,6 +41,7 @@
                 <div class="dropdown-content">
                   <p>Click inside the game, then use `Arrow Left`, `Arrow Right`, and `Arrow Up`.</p>
                   <p>You can play offline with no Wi-Fi. Solo play and local split-screen work right from this page.</p>
+                  <p>On iPad, drag on the world to aim and use the touch buttons under the game screen.</p>
                   <p>Left click mines a block. Right click places the selected block or opens a door.</p>
                   <p>Click the page once to start the built-in ambient game music and sound effects.</p>
                   <p>Water lets you swim. Lava hurts you in Survival, so watch your hearts.</p>
@@ -117,6 +118,21 @@
                 tabindex="0"
                 aria-label="ImmaniCraft playable sandbox"
               ></canvas>
+              <div class="touch-panel" id="touch-panel" aria-label="Touch controls">
+                <p class="touch-copy">iPad mode: drag on the world to aim, then use the touch controls.</p>
+                <div class="touch-grid">
+                  <div class="touch-move">
+                    <button type="button" class="touch-button" data-touch-key="ArrowLeft">Left</button>
+                    <button type="button" class="touch-button" data-touch-key="Space">Jump</button>
+                    <button type="button" class="touch-button" data-touch-key="ArrowRight">Right</button>
+                    <button type="button" class="touch-button" data-touch-key="ShiftLeft">Down</button>
+                  </div>
+                  <div class="touch-actions">
+                    <button type="button" class="touch-button touch-action-button" id="touch-mine">Mine</button>
+                    <button type="button" class="touch-button touch-action-button" id="touch-place">Place / Use</button>
+                  </div>
+                </div>
+              </div>
             </section>
 
             <div class="sidebar-shell">
