@@ -20,6 +20,9 @@ const playerCopy = document.getElementById("player-copy");
 const playerButtons = Array.from(document.querySelectorAll("[data-player-count]"));
 const fullscreenToggle = document.getElementById("fullscreen-toggle");
 const muteToggle = document.getElementById("mute-toggle");
+const saveLink = document.getElementById("save-link");
+const loadSaveButton = document.getElementById("load-save");
+const loadSaveInput = document.getElementById("load-save-input");
 const sidebarToggle = document.getElementById("sidebar-toggle");
 const tabButtons = Array.from(document.querySelectorAll(".tab-button"));
 const tabPanels = Array.from(document.querySelectorAll(".tab-panel"));
@@ -510,6 +513,7 @@ let networkSyncTimer = null;
 let networkSyncBusy = false;
 let networkWorldVersion = 0;
 let networkRemotePlayers = [];
+let saveObjectUrl = "";
 
 const LAND_ANIMAL_TYPES = ["sheep", "pig", "cow", "chicken", "bunny"];
 const SEA_ANIMAL_TYPES = ["fish", "jelly", "dolphin", "shark"];
@@ -723,6 +727,213 @@ function serializeSnapshot() {
   };
 }
 
+function buildSavePayload() {
+  return {
+    schemaVersion: 2,
+    savedAt: new Date().toISOString(),
+    playerName: getPlayerName(),
+    state: serializeGameState(),
+  };
+}
+
+function serializePlayerForSave(activePlayer) {
+  return {
+    x: activePlayer.x,
+    y: activePlayer.y,
+    width: activePlayer.width,
+    height: activePlayer.height,
+    vx: activePlayer.vx,
+    vy: activePlayer.vy,
+    onGround: activePlayer.onGround,
+    isSwimming: activePlayer.isSwimming,
+    maxHealth: activePlayer.maxHealth,
+    health: activePlayer.health,
+    lastDamageTick: activePlayer.lastDamageTick,
+    lastRegenAt: activePlayer.lastRegenAt,
+    isFlying: activePlayer.isFlying,
+    facing: activePlayer.facing,
+    maxAir: activePlayer.maxAir,
+    air: activePlayer.air,
+    lastAirTick: activePlayer.lastAirTick,
+  };
+}
+
+function serializeEntityForSave(entity, extraFields = []) {
+  const base = {
+    x: entity.x,
+    y: entity.y,
+    width: entity.width,
+    height: entity.height,
+    vx: entity.vx,
+    vy: entity.vy,
+    onGround: entity.onGround,
+  };
+
+  extraFields.forEach((field) => {
+    if (entity[field] !== undefined) {
+      base[field] = entity[field];
+    }
+  });
+
+  return base;
+}
+
+function serializeGameState() {
+  return {
+    snapshot: serializeSnapshot(),
+    inventory: { ...inventory },
+    selectedBlock,
+    activePlayerCount,
+    liquidTick,
+    portalCooldown,
+    thunderFlash,
+    gameStarted,
+    gamePaused,
+    players: allPlayers.map(serializePlayerForSave),
+    monsters: monsters.map((monster) =>
+      serializeEntityForSave(monster, ["health", "maxHealth", "burnTick", "type", "phaseTick", "waterTicks"])
+    ),
+    villagers: villagers.map((villager) => serializeEntityForSave(villager, ["stepTick"])),
+    animals: animals.map((animal) => serializeEntityForSave(animal, ["stepTick", "type"])),
+    seaAnimals: seaAnimals.map((animal) => serializeEntityForSave(animal, ["swimTick", "type"])),
+  };
+}
+
+function restorePlayerFromSave(target, savedPlayer) {
+  if (!savedPlayer) return;
+  target.x = savedPlayer.x ?? target.x;
+  target.y = savedPlayer.y ?? target.y;
+  target.width = savedPlayer.width ?? target.width;
+  target.height = savedPlayer.height ?? target.height;
+  target.vx = savedPlayer.vx ?? 0;
+  target.vy = savedPlayer.vy ?? 0;
+  target.onGround = Boolean(savedPlayer.onGround);
+  target.isSwimming = Boolean(savedPlayer.isSwimming);
+  target.maxHealth = savedPlayer.maxHealth ?? target.maxHealth;
+  target.health = savedPlayer.health ?? target.health;
+  target.lastDamageTick = savedPlayer.lastDamageTick ?? target.lastDamageTick;
+  target.lastRegenAt = savedPlayer.lastRegenAt ?? target.lastRegenAt;
+  target.isFlying = Boolean(savedPlayer.isFlying);
+  target.facing = savedPlayer.facing ?? target.facing;
+  target.maxAir = savedPlayer.maxAir ?? target.maxAir;
+  target.air = savedPlayer.air ?? target.air;
+  target.lastAirTick = savedPlayer.lastAirTick ?? target.lastAirTick;
+  target.leadHolder = null;
+}
+
+function restoreEntityList(targetList, savedList) {
+  targetList.splice(0, targetList.length);
+  (savedList || []).forEach((entry) => {
+    targetList.push({
+      ...entry,
+      leadTarget: null,
+      leadHolder: null,
+    });
+  });
+}
+
+function applySavedGameState(savedState) {
+  if (!savedState?.snapshot) return false;
+
+  applySnapshot(savedState.snapshot);
+
+  Object.keys(inventory).forEach((itemId) => {
+    inventory[itemId] = 0;
+  });
+  Object.entries(savedState.inventory || {}).forEach(([itemId, amount]) => {
+    if (inventory[itemId] !== undefined) {
+      inventory[itemId] = amount;
+    }
+  });
+
+  selectedBlock = itemLookup[savedState.selectedBlock] ? savedState.selectedBlock : selectedBlock;
+  activePlayerCount = Math.min(4, Math.max(1, savedState.activePlayerCount ?? activePlayerCount));
+  liquidTick = savedState.liquidTick ?? liquidTick;
+  portalCooldown = savedState.portalCooldown ?? portalCooldown;
+  thunderFlash = savedState.thunderFlash ?? 0;
+  gameStarted = savedState.gameStarted ?? true;
+  gamePaused = savedState.gamePaused ?? true;
+
+  (savedState.players || []).forEach((savedPlayer, index) => {
+    if (allPlayers[index]) {
+      restorePlayerFromSave(allPlayers[index], savedPlayer);
+    }
+  });
+
+  restoreEntityList(monsters, savedState.monsters);
+  restoreEntityList(villagers, savedState.villagers);
+  restoreEntityList(animals, savedState.animals);
+  restoreEntityList(seaAnimals, savedState.seaAnimals);
+
+  networkMode = "offline";
+  networkRoomId = "";
+  networkPlayerId = "";
+  networkIsHost = false;
+  networkWorldVersion = 0;
+  networkRemotePlayers = [];
+  stopNetworkSync();
+  setDefaultConnectionStatus();
+
+  renderMode();
+  renderPlayerCount();
+  renderToolbar();
+  renderInventory();
+  renderCrafting();
+  renderGameRunState();
+  renderHearts();
+  refreshWorldStatus();
+  refreshSaveLink();
+  renderFrame();
+
+  if (!gamePaused && gameStarted && !animationFrameId) {
+    animationFrameId = requestAnimationFrame(loop);
+  }
+
+  return true;
+}
+
+function applySavePayload(payload) {
+  if (payload?.playerName && playerNameInput) {
+    playerNameInput.value = payload.playerName;
+  }
+
+  if (payload?.state) {
+    return applySavedGameState(payload.state);
+  }
+
+  if (payload?.snapshot) {
+    applySnapshot(payload.snapshot);
+    renderPlayerCount();
+    renderToolbar();
+    renderInventory();
+    renderCrafting();
+    renderGameRunState();
+    renderHearts();
+    refreshSaveLink();
+    renderFrame();
+    return true;
+  }
+
+  return false;
+}
+
+function refreshSaveLink() {
+  if (!saveLink) return;
+
+  if (saveObjectUrl) {
+    URL.revokeObjectURL(saveObjectUrl);
+    saveObjectUrl = "";
+  }
+
+  const saveBlob = new Blob([JSON.stringify(buildSavePayload(), null, 2)], {
+    type: "application/json",
+  });
+  const stamp = new Date().toISOString().replace(/[:.]/g, "-");
+  saveObjectUrl = URL.createObjectURL(saveBlob);
+  saveLink.href = saveObjectUrl;
+  saveLink.download = `immanicraft-save-${stamp}.json`;
+}
+
 function applySnapshot(snapshot) {
   if (!snapshot?.dimensions?.overworld?.world || !snapshot?.dimensions?.nether?.world) return;
   dimensions.overworld.world = snapshot.dimensions.overworld.world;
@@ -914,6 +1125,45 @@ if (joinRoomButton) {
     }
   });
 }
+
+if (saveLink) {
+  saveLink.addEventListener("click", () => {
+    refreshSaveLink();
+    updateStatus("Save file ready. Your browser should download it now.");
+  });
+}
+
+if (loadSaveButton && loadSaveInput) {
+  loadSaveButton.addEventListener("click", () => {
+    loadSaveInput.click();
+  });
+
+  loadSaveInput.addEventListener("change", async (event) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    try {
+      const payload = JSON.parse(await file.text());
+      const loaded = applySavePayload(payload);
+      updateStatus(
+        loaded
+          ? `Loaded save from ${payload.savedAt || "file"}.`
+          : "That save file is missing the game state."
+      );
+    } catch (error) {
+      updateStatus(`Could not load save: ${error.message}`);
+    } finally {
+      loadSaveInput.value = "";
+    }
+  });
+}
+
+window.addEventListener("beforeunload", () => {
+  if (saveObjectUrl) {
+    URL.revokeObjectURL(saveObjectUrl);
+    saveObjectUrl = "";
+  }
+});
 
 setDefaultConnectionStatus();
 
@@ -3366,6 +3616,7 @@ renderMuteButton();
 renderFullscreenButton();
 renderSidebarState();
 renderGameRunState();
+refreshSaveLink();
 renderHearts();
 refreshWorldStatus();
 renderFrame();

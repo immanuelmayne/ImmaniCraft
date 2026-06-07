@@ -80,6 +80,16 @@
             <section class="game-panel">
               <div class="game-run-bar" aria-label="Game playback controls">
                 <button type="button" class="mode-button" id="start-game">Start</button>
+                <a
+                  class="mode-button"
+                  id="save-link"
+                  href="#"
+                  download="immanicraft-save.json"
+                >
+                  Save
+                </a>
+                <button type="button" class="mode-button" id="load-save">Load</button>
+                <input id="load-save-input" type="file" accept=".json,application/json" hidden />
                 <button
                   type="button"
                   class="mode-button icon-button"
